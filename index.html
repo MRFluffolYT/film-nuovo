@@ -2,48 +2,166 @@
 <html lang="it">
 <head>
 <meta charset="UTF-8" />
-<title>Ricerca Film VixSrc + TMDb</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Ricerca Film </title>
 <style>
-  body { font-family: Arial, sans-serif; background: #121212; color: white; padding: 20px; }
-  input[type="text"] { width: 300px; padding: 8px; font-size: 16px; border-radius: 4px; border: none; }
-  button { padding: 8px 12px; font-size: 16px; border-radius: 4px; border: none; background: #1db954; color: white; cursor: pointer; }
-  button:hover { background: #17a44c; }
-  .results { margin-top: 20px; display: flex; flex-wrap: wrap; gap: 15px; }
-  .card { width: 150px; cursor: pointer; background: #222; padding: 10px; border-radius: 8px; text-align: center; }
-  .card img { width: 100%; border-radius: 5px; }
-  iframe { margin-top: 30px; width: 100%; max-width: 800px; height: 450px; border: none; border-radius: 8px; }
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: #121212;
+    color: #eee;
+    margin: 0;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  h1 {
+    margin-bottom: 20px;
+  }
+  #search-container {
+    display: flex;
+    max-width: 600px;
+    width: 100%;
+    margin-bottom: 20px;
+  }
+  #searchInput {
+    flex-grow: 1;
+    padding: 12px 15px;
+    font-size: 18px;
+    border-radius: 8px 0 0 8px;
+    border: none;
+    outline: none;
+  }
+  #searchBtn {
+    padding: 12px 25px;
+    font-size: 18px;
+    border: none;
+    background-color: #1db954;
+    color: white;
+    cursor: pointer;
+    border-radius: 0 8px 8px 0;
+    transition: background-color 0.3s ease;
+  }
+  #searchBtn:hover {
+    background-color: #17a44c;
+  }
+  #results {
+    display: grid;
+    grid-template-columns: repeat(auto-fill,minmax(150px,1fr));
+    gap: 18px;
+    max-width: 900px;
+    width: 100%;
+    margin-bottom: 30px;
+  }
+  .card {
+    background: #222;
+    border-radius: 12px;
+    overflow: hidden;
+    cursor: pointer;
+    box-shadow: 0 0 8px #000;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .card:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 15px #1db954;
+  }
+  .card img {
+    width: 100%;
+    height: 225px;
+    object-fit: cover;
+    user-select: none;
+  }
+  .card h3 {
+    font-size: 1rem;
+    margin: 10px 8px 5px 8px;
+    text-align: center;
+    line-height: 1.2;
+  }
+  .card p {
+    font-size: 0.9rem;
+    color: #ccc;
+    margin-bottom: 10px;
+  }
+  #loading {
+    margin-top: 15px;
+    font-style: italic;
+    color: #bbb;
+  }
+  iframe {
+    width: 100%;
+    max-width: 900px;
+    height: 520px;
+    border: none;
+    border-radius: 14px;
+    box-shadow: 0 0 20px #1db954aa;
+    margin-bottom: 40px;
+  }
+  @media (max-width: 600px) {
+    #searchInput {
+      font-size: 16px;
+    }
+    #searchBtn {
+      font-size: 16px;
+    }
+    .card img {
+      height: 180px;
+    }
+  }
 </style>
 </head>
 <body>
+
 <h1>Ricerca Film con TMDb + Player VixSrc</h1>
 
-<div>
-  <input type="text" id="searchInput" placeholder="Cerca un film..." />
+<div id="search-container">
+  <input type="text" id="searchInput" placeholder="Cerca un film..." autocomplete="off" />
   <button id="searchBtn">Cerca</button>
 </div>
 
-<div id="results" class="results"></div>
+<div id="loading" style="display:none;">Sto cercando...</div>
+<div id="results"></div>
 
-<iframe id="playerFrame" src="" style="display:none;" allowfullscreen></iframe>
+<iframe id="playerFrame" src="" style="display:none;" sandbox="allow-scripts allow-same-origin allow-forms allow-pointer-lock"></iframe>
 
 <script>
 const tmdbApiKey = 'a3c17d492a24a9f77acb23626404edd1';
 
+function blockPopups() {
+  // Override window.open to bloccare popup da codice in questa pagina
+  window.open = function() {
+    console.log('Popup bloccato!');
+    return null;
+  };
+}
+
+// Chiamalo subito
+blockPopups();
+
 async function searchMovies(query) {
   if (!query) return [];
   const url = `https://api.themoviedb.org/3/search/movie?api_key=${tmdbApiKey}&language=it-IT&query=${encodeURIComponent(query)}`;
-  const res = await fetch(url);
-  if (!res.ok) return [];
-  const data = await res.json();
-  return data.results || [];
+  try {
+    const res = await fetch(url);
+    if (!res.ok) throw new Error('Errore nella richiesta TMDb');
+    const data = await res.json();
+    return data.results || [];
+  } catch (err) {
+    console.error(err);
+    return [];
+  }
 }
 
 function createMovieCard(movie) {
   const card = document.createElement('div');
   card.className = 'card';
-  const poster = movie.poster_path ? `https://image.tmdb.org/t/p/w300${movie.poster_path}` : 'https://via.placeholder.com/150x225?text=No+Image';
+  const poster = movie.poster_path 
+    ? `https://image.tmdb.org/t/p/w300${movie.poster_path}` 
+    : 'https://via.placeholder.com/150x225?text=No+Image';
   card.innerHTML = `
-    <img src="${poster}" alt="${movie.title}" />
+    <img src="${poster}" alt="${movie.title}" loading="lazy" />
     <h3>${movie.title}</h3>
     <p>${movie.release_date ? movie.release_date.substring(0,4) : 'N/D'}</p>
   `;
@@ -51,33 +169,45 @@ function createMovieCard(movie) {
     const player = document.getElementById('playerFrame');
     player.src = `https://vixsrc.to/movie/${movie.id}`;
     player.style.display = 'block';
-    // Scrolla al player
     player.scrollIntoView({behavior: 'smooth'});
   });
   return card;
 }
 
-document.getElementById('searchBtn').addEventListener('click', async () => {
-  const query = document.getElementById('searchInput').value.trim();
-  const resultsDiv = document.getElementById('results');
-  resultsDiv.innerHTML = 'Sto cercando...';
+const searchInput = document.getElementById('searchInput');
+const searchBtn = document.getElementById('searchBtn');
+const resultsDiv = document.getElementById('results');
+const loadingDiv = document.getElementById('loading');
+const playerFrame = document.getElementById('playerFrame');
+
+async function doSearch() {
+  const query = searchInput.value.trim();
+  if (!query) return;
+  resultsDiv.innerHTML = '';
+  loadingDiv.style.display = 'block';
+  playerFrame.style.display = 'none';
+  playerFrame.src = '';
+
   const movies = await searchMovies(query);
+  loadingDiv.style.display = 'none';
+
   if (movies.length === 0) {
     resultsDiv.textContent = 'Nessun film trovato.';
-    document.getElementById('playerFrame').style.display = 'none';
     return;
   }
   resultsDiv.innerHTML = '';
   movies.forEach(movie => {
     resultsDiv.appendChild(createMovieCard(movie));
   });
-});
+}
 
-document.getElementById('searchInput').addEventListener('keydown', (e) => {
+searchBtn.addEventListener('click', doSearch);
+searchInput.addEventListener('keydown', e => {
   if (e.key === 'Enter') {
-    document.getElementById('searchBtn').click();
+    doSearch();
   }
 });
 </script>
+
 </body>
 </html>
