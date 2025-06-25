@@ -11,10 +11,14 @@
       color: #fff;
       padding: 20px;
     }
+    h1 {
+      text-align: center;
+    }
     .grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
       gap: 20px;
+      margin-top: 20px;
     }
     .card {
       background-color: #222;
@@ -41,22 +45,23 @@
   </style>
 </head>
 <body>
-  <h1>🎬 Film disponibili su VixSrc (IT)</h1>
-  <div id="filmGrid">Caricamento...</div>
+  <h1>🎬 Film da VixSrc (Lingua IT)</h1>
+  <div id="filmGrid">Caricamento film in corso...</div>
 
   <script>
     const apiUrl = 'https://vixsrc.to/api/list/movie/?lang=it';
-    const proxy = 'https://corsproxy.io/?' + encodeURIComponent(apiUrl);
+    const proxy = 'https://api.allorigins.win/raw?url=' + encodeURIComponent(apiUrl);
 
     async function loadMovies() {
       try {
         const res = await fetch(proxy);
         const data = await res.json();
-        const grid = document.getElementById('filmGrid');
-        grid.className = 'grid';
-        grid.innerHTML = '';
 
-        if (!data.results || data.results.length === 0) {
+        const grid = document.getElementById('filmGrid');
+        grid.innerHTML = '';
+        grid.className = 'grid';
+
+        if (!data.results || !data.results.length) {
           grid.innerHTML = '<p>Nessun film trovato.</p>';
           return;
         }
@@ -71,9 +76,10 @@
           `;
           grid.appendChild(card);
         });
-      } catch (e) {
-        console.error(e);
-        document.getElementById('filmGrid').innerHTML = '<p>Errore nel caricamento dei dati.</p>';
+      } catch (error) {
+        console.error('Errore nel caricamento dei dati:', error);
+        document.getElementById('filmGrid').innerHTML =
+          '<p>⚠️ Errore nel caricamento dei film. Riprova più tardi.</p>';
       }
     }
 
