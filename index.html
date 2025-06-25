@@ -6,55 +6,37 @@
   <title>JoinoFlix</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
-
     body {
       background-color: #141414;
       color: #fff;
       font-family: 'Helvetica Neue', sans-serif;
       padding: 16px;
     }
-
-    header {
-      text-align: center;
-      margin-bottom: 20px;
-    }
-
-    header h1 {
-      color: #e50914;
-      font-size: 26px;
-    }
+    header { text-align: center; margin-bottom: 20px; }
+    header h1 { color: #e50914; font-size: 26px; }
 
     #search-container {
       display: flex;
       justify-content: center;
       margin-bottom: 20px;
+      flex-wrap: wrap;
+      gap: 10px;
     }
-
-    #searchInput {
-      flex: 1;
-      max-width: 300px;
+    #searchInput, #typeSelect {
       padding: 10px;
       font-size: 16px;
-      border-radius: 6px 0 0 6px;
+      border-radius: 6px;
       border: none;
       outline: none;
     }
-
     #searchBtn {
       padding: 10px 15px;
       font-size: 16px;
       background-color: #e50914;
       color: #fff;
       border: none;
-      border-radius: 0 6px 6px 0;
+      border-radius: 6px;
       cursor: pointer;
-    }
-
-    #loading {
-      text-align: center;
-      font-style: italic;
-      margin-bottom: 10px;
-      color: #aaa;
     }
 
     #results {
@@ -62,7 +44,6 @@
       grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
       gap: 12px;
     }
-
     .card {
       background-color: #222;
       border-radius: 6px;
@@ -70,17 +51,12 @@
       cursor: pointer;
       transition: transform 0.2s;
     }
-
-    .card:hover {
-      transform: scale(1.05);
-    }
-
+    .card:hover { transform: scale(1.05); }
     .card img {
       width: 100%;
       height: 150px;
       object-fit: cover;
     }
-
     .card h3 {
       font-size: 12px;
       text-align: center;
@@ -100,14 +76,20 @@
       box-shadow: 0 0 10px rgba(229, 9, 20, 0.4);
     }
 
-    @media (max-width: 480px) {
-      .card img {
-        height: 140px;
-      }
+    #seasonEpisodePicker {
+      margin-top: 20px;
+      display: none;
+      text-align: center;
+    }
+    #seasonEpisodePicker select {
+      padding: 8px;
+      margin: 0 5px;
+      font-size: 16px;
+    }
 
-      iframe {
-        height: 300px;
-      }
+    @media (max-width: 480px) {
+      .card img { height: 140px; }
+      iframe { height: 300px; }
     }
   </style>
 </head>
@@ -118,77 +100,135 @@
   </header>
 
   <div id="search-container">
-    <input type="text" id="searchInput" placeholder="Cerca un film..." />
+    <input type="text" id="searchInput" placeholder="Cerca un titolo..." />
+    <select id="typeSelect">
+      <option value="movie">Film</option>
+      <option value="tv">Serie TV</option>
+    </select>
     <button id="searchBtn">Cerca</button>
   </div>
 
-  <div id="loading" style="display: none;">Caricamento in corso...</div>
   <div id="results"></div>
+
+  <div id="seasonEpisodePicker">
+    <label>Stagione: <select id="seasonSelect"></select></label>
+    <label>Episodio: <select id="episodeSelect"></select></label>
+    <button onclick="playSelectedEpisode()">Guarda</button>
+  </div>
 
   <iframe id="playerFrame"></iframe>
 
   <script>
     const tmdbApiKey = 'a3c17d492a24a9f77acb23626404edd1';
-    window.open = () => null; // Blocca popup
+    window.open = () => null; // blocca popup
 
-    async function searchMovies(query) {
-      const url = `https://api.themoviedb.org/3/search/movie?api_key=${tmdbApiKey}&language=it-IT&query=${encodeURIComponent(query)}`;
-      try {
-        const res = await fetch(url);
-        const data = await res.json();
-        return data.results || [];
-      } catch (err) {
-        console.error(err);
-        return [];
-      }
+    let currentTVId = null;
+
+    async function search(query, type = 'movie') {
+      const url = `https://api.themoviedb.org/3/search/${type}?api_key=${tmdbApiKey}&language=it-IT&query=${encodeURIComponent(query)}`;
+      const res = await fetch(url);
+      const data = await res.json();
+      return data.results || [];
     }
 
-    function createCard(movie) {
+    async function fetchSeasons(tvId) {
+      const url = `https://api.themoviedb.org/3/tv/${tvId}?api_key=${tmdbApiKey}&language=it-IT`;
+      const res = await fetch(url);
+      const data = await res.json();
+      return data.seasons || [];
+    }
+
+    async function fetchEpisodes(tvId, seasonNumber) {
+      const url = `https://api.themoviedb.org/3/tv/${tvId}/season/${seasonNumber}?api_key=${tmdbApiKey}&language=it-IT`;
+      const res = await fetch(url);
+      const data = await res.json();
+      return data.episodes || [];
+    }
+
+    function createCard(item, type) {
       const card = document.createElement('div');
       card.className = 'card';
-      const imgSrc = movie.poster_path
-        ? `https://image.tmdb.org/t/p/w300${movie.poster_path}`
+      const imgSrc = item.poster_path
+        ? `https://image.tmdb.org/t/p/w300${item.poster_path}`
         : 'https://via.placeholder.com/100x150?text=No+Image';
       card.innerHTML = `
-        <img src="${imgSrc}" alt="${movie.title}" loading="lazy" />
-        <h3>${movie.title}</h3>
+        <img src="${imgSrc}" alt="${item.name || item.title}" />
+        <h3>${item.name || item.title}</h3>
       `;
-      card.addEventListener('click', () => {
-        const player = document.getElementById('playerFrame');
-        player.src = `https://vixsrc.to/movie/${movie.id}`;
-        player.style.display = 'block';
-        player.scrollIntoView({ behavior: 'smooth' });
+      card.addEventListener('click', async () => {
+        const iframe = document.getElementById('playerFrame');
+        const picker = document.getElementById('seasonEpisodePicker');
+        iframe.style.display = 'none';
+        iframe.src = '';
+
+        if (type === 'movie') {
+          iframe.src = `https://vixsrc.to/movie/${item.id}`;
+          iframe.style.display = 'block';
+          iframe.scrollIntoView({ behavior: 'smooth' });
+          picker.style.display = 'none';
+        } else {
+          currentTVId = item.id;
+          const seasons = await fetchSeasons(currentTVId);
+          const seasonSelect = document.getElementById('seasonSelect');
+          seasonSelect.innerHTML = '';
+          seasons.forEach(s => {
+            if (s.season_number > 0)
+              seasonSelect.innerHTML += `<option value="${s.season_number}">Stagione ${s.season_number}</option>`;
+          });
+          updateEpisodes();
+          picker.style.display = 'block';
+          picker.scrollIntoView({ behavior: 'smooth' });
+        }
       });
       return card;
     }
 
-    async function doSearch() {
-      const query = document.getElementById('searchInput').value.trim();
-      const resultsDiv = document.getElementById('results');
-      const loadingDiv = document.getElementById('loading');
-      const player = document.getElementById('playerFrame');
+    async function updateEpisodes() {
+      const seasonNum = document.getElementById('seasonSelect').value;
+      const episodes = await fetchEpisodes(currentTVId, seasonNum);
+      const episodeSelect = document.getElementById('episodeSelect');
+      episodeSelect.innerHTML = '';
+      episodes.forEach(e => {
+        episodeSelect.innerHTML += `<option value="${e.episode_number}">Ep ${e.episode_number}</option>`;
+      });
+    }
 
-      if (!query) return;
-      loadingDiv.style.display = 'block';
-      resultsDiv.innerHTML = '';
-      player.style.display = 'none';
-      player.src = '';
-
-      const movies = await searchMovies(query);
-      loadingDiv.style.display = 'none';
-
-      if (!movies.length) {
-        resultsDiv.innerHTML = '<p style="text-align:center;">Nessun film trovato.</p>';
-        return;
-      }
-
-      movies.forEach(movie => resultsDiv.appendChild(createCard(movie)));
+    async function playSelectedEpisode() {
+      const season = document.getElementById('seasonSelect').value;
+      const episode = document.getElementById('episodeSelect').value;
+      const iframe = document.getElementById('playerFrame');
+      iframe.src = `https://vixsrc.to/tv/${currentTVId}/${season}/${episode}`;
+      iframe.style.display = 'block';
+      iframe.scrollIntoView({ behavior: 'smooth' });
     }
 
     document.getElementById('searchBtn').addEventListener('click', doSearch);
     document.getElementById('searchInput').addEventListener('keydown', e => {
       if (e.key === 'Enter') doSearch();
     });
+    document.getElementById('seasonSelect').addEventListener('change', updateEpisodes);
+
+    async function doSearch() {
+      const query = document.getElementById('searchInput').value.trim();
+      const type = document.getElementById('typeSelect').value;
+      const resultsDiv = document.getElementById('results');
+      const iframe = document.getElementById('playerFrame');
+      const picker = document.getElementById('seasonEpisodePicker');
+
+      if (!query) return;
+
+      resultsDiv.innerHTML = '';
+      iframe.style.display = 'none';
+      picker.style.display = 'none';
+      const results = await search(query, type);
+      if (!results.length) {
+        resultsDiv.innerHTML = '<p style="text-align:center;">Nessun risultato trovato.</p>';
+        return;
+      }
+      results.forEach(item => {
+        resultsDiv.appendChild(createCard(item, type));
+      });
+    }
   </script>
 
 </body>
