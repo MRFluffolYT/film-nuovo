@@ -1,105 +1,268 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>JoinoFlix</title>
-  <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-      background-color: #141414;
-      color: #fff;
-      font-family: 'Helvetica Neue', sans-serif;
-      padding: 16px;
-    }
-    header { text-align: center; margin-bottom: 20px; }
-    header h1 { color: #e50914; font-size: 26px; }
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>JoinoFlix</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap');
 
-    #search-container {
-      display: flex;
-      justify-content: center;
-      margin-bottom: 20px;
-      flex-wrap: wrap;
-      gap: 10px;
-    }
-    #searchInput, #typeSelect {
-      padding: 10px;
-      font-size: 16px;
-      border-radius: 6px;
-      border: none;
-      outline: none;
-    }
-    #searchBtn {
-      padding: 10px 15px;
-      font-size: 16px;
-      background-color: #e50914;
-      color: #fff;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-    }
+  * {
+    box-sizing: border-box;
+  }
+  body {
+    margin: 0;
+    background-color: #141414;
+    color: #fff;
+    font-family: 'Montserrat', sans-serif;
+  }
+  header {
+    background-color: #111;
+    padding: 12px 24px;
+    display: flex;
+    align-items: center;
+    border-bottom: 1px solid #222;
+  }
+  header h1 {
+    color: #e50914;
+    font-weight: 700;
+    font-size: 28px;
+    user-select: none;
+  }
+  #search-bar {
+    flex: 1;
+    margin-left: 20px;
+    display: flex;
+    max-width: 400px;
+  }
+  #searchInput {
+    flex-grow: 1;
+    padding: 8px 12px;
+    border-radius: 4px 0 0 4px;
+    border: none;
+    font-size: 16px;
+  }
+  #typeSelect {
+    width: 110px;
+    border: none;
+    border-radius: 0 4px 4px 0;
+    font-size: 16px;
+  }
+  #searchBtn {
+    margin-left: 12px;
+    background-color: #e50914;
+    border: none;
+    color: white;
+    padding: 8px 20px;
+    font-weight: 700;
+    font-size: 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    user-select: none;
+    transition: background-color 0.3s ease;
+  }
+  #searchBtn:hover {
+    background-color: #b00610;
+  }
+  main {
+    padding: 20px 24px;
+  }
+  section.category {
+    margin-bottom: 40px;
+  }
+  section.category h2 {
+    font-size: 20px;
+    margin-bottom: 12px;
+    user-select: none;
+  }
+  .scroll-container {
+    display: flex;
+    overflow-x: auto;
+    padding-bottom: 6px;
+    scrollbar-width: thin;
+  }
+  .scroll-container::-webkit-scrollbar {
+    height: 6px;
+  }
+  .scroll-container::-webkit-scrollbar-thumb {
+    background: #e50914;
+    border-radius: 3px;
+  }
+  .card {
+    flex: 0 0 auto;
+    width: 140px;
+    margin-right: 12px;
+    background-color: #222;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+    user-select: none;
+  }
+  .card:hover {
+    transform: scale(1.08);
+    box-shadow: 0 0 15px #e50914;
+    z-index: 10;
+  }
+  .card img {
+    width: 100%;
+    height: 210px;
+    object-fit: cover;
+    border-radius: 8px 8px 0 0;
+  }
+  .card .title {
+    font-size: 14px;
+    font-weight: 700;
+    padding: 8px 6px 4px 6px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .card .sub {
+    font-size: 12px;
+    color: #aaa;
+    padding: 0 6px 8px 6px;
+  }
 
-    #results {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
-      gap: 12px;
-    }
-    .card {
-      background-color: #222;
-      border-radius: 6px;
-      overflow: hidden;
-      cursor: pointer;
-      transition: transform 0.2s;
-    }
-    .card:hover { transform: scale(1.05); }
-    .card img {
-      width: 100%;
-      height: 150px;
-      object-fit: cover;
-    }
-    .card h3 {
-      font-size: 12px;
-      text-align: center;
-      padding: 4px;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
+  /* Details overlay */
+  #detailsOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right:0;
+    bottom:0;
+    background: rgba(0,0,0,0.85);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    padding: 24px;
+    overflow-y: auto;
+    z-index: 9999;
+  }
+  #detailsContent {
+    background: #222;
+    border-radius: 12px;
+    max-width: 900px;
+    width: 100%;
+    color: #eee;
+    padding: 24px;
+    position: relative;
+  }
+  #detailsClose {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    font-size: 28px;
+    color: #e50914;
+    font-weight: 700;
+    cursor: pointer;
+    user-select: none;
+  }
+  #detailsContent h2 {
+    margin-bottom: 10px;
+  }
+  #detailsContent p {
+    line-height: 1.4;
+    font-size: 16px;
+    margin-bottom: 15px;
+  }
+  #detailsInfo {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    font-size: 14px;
+    color: #bbb;
+    margin-bottom: 20px;
+  }
+  #detailsInfo div {
+    min-width: 120px;
+  }
+  #detailsPoster {
+    max-width: 250px;
+    flex-shrink: 0;
+    border-radius: 8px;
+    margin-right: 20px;
+    box-shadow: 0 0 15px #e50914;
+  }
+  #detailsFlex {
+    display: flex;
+    flex-wrap: wrap;
+  }
+  #genres, #cast {
+    margin-bottom: 15px;
+  }
+  #genres span, #cast span {
+    display: inline-block;
+    background: #e50914;
+    border-radius: 20px;
+    padding: 5px 12px;
+    margin: 3px 5px 3px 0;
+    font-size: 13px;
+  }
+  #playBtnDetails {
+    background-color: #e50914;
+    color: white;
+    padding: 12px 24px;
+    font-size: 18px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 700;
+    user-select: none;
+    transition: background-color 0.3s ease;
+  }
+  #playBtnDetails:hover {
+    background-color: #b00610;
+  }
+  #seasonEpisodeSelect {
+    margin-bottom: 15px;
+    display: none;
+    gap: 12px;
+  }
+  #seasonEpisodeSelect label {
+    font-size: 14px;
+  }
+  #seasonEpisodeSelect select {
+    background-color: #333;
+    border: none;
+    border-radius: 5px;
+    padding: 6px 12px;
+    color: white;
+    font-size: 14px;
+    cursor: pointer;
+  }
 
-    iframe {
-      display: none;
-      width: 100%;
-      height: 400px;
-      border: none;
-      border-radius: 10px;
-      margin-top: 25px;
-      box-shadow: 0 0 10px rgba(229, 9, 20, 0.4);
-    }
+  /* Player iframe */
+  #playerFrame {
+    width: 100%;
+    height: 480px;
+    border: none;
+    border-radius: 12px;
+    box-shadow: 0 0 25px #e50914aa;
+    margin-top: 30px;
+  }
 
-    #seasonEpisodePicker {
-      margin-top: 20px;
-      display: none;
-      text-align: center;
+  /* Responsive */
+  @media (max-width: 720px) {
+    #detailsFlex {
+      flex-direction: column;
+      align-items: center;
     }
-    #seasonEpisodePicker select {
-      padding: 8px;
-      margin: 0 5px;
-      font-size: 16px;
+    #detailsPoster {
+      margin: 0 0 20px 0;
+      max-width: 100%;
+      width: 280px;
     }
-
-    @media (max-width: 480px) {
-      .card img { height: 140px; }
-      iframe { height: 300px; }
+    #playerFrame {
+      height: 320px;
     }
-  </style>
+  }
+</style>
 </head>
 <body>
 
-  <header>
-    <h1>JoinoFlix 🎬</h1>
-  </header>
-
-  <div id="search-container">
+<header>
+  <h1>JoinoFlix</h1>
+  <div id="search-bar">
     <input type="text" id="searchInput" placeholder="Cerca un titolo..." />
     <select id="typeSelect">
       <option value="movie">Film</option>
@@ -107,129 +270,63 @@
     </select>
     <button id="searchBtn">Cerca</button>
   </div>
+</header>
 
-  <div id="results"></div>
+<main>
+  <!-- Categorie trending/popolari -->
+  <section class="category" id="trendingSection">
+    <h2>🔥 Trendings Oggi</h2>
+    <div class="scroll-container" id="trendingList"></div>
+  </section>
+  <section class="category" id="popularMoviesSection">
+    <h2>Film Popolari</h2>
+    <div class="scroll-container" id="popularMoviesList"></div>
+  </section>
+  <section class="category" id="popularTVSection">
+    <h2>Serie TV Popolari</h2>
+    <div class="scroll-container" id="popularTVList"></div>
+  </section>
+</main>
 
-  <div id="seasonEpisodePicker">
-    <label>Stagione: <select id="seasonSelect"></select></label>
-    <label>Episodio: <select id="episodeSelect"></select></label>
-    <button onclick="playSelectedEpisode()">Guarda</button>
+<!-- Dettagli overlay -->
+<div id="detailsOverlay">
+  <div id="detailsContent">
+    <div id="detailsClose">&times;</div>
+    <div id="detailsFlex">
+      <img id="detailsPoster" src="" alt="Poster" />
+      <div>
+        <h2 id="detailsTitle"></h2>
+        <p id="detailsOverview"></p>
+        <div id="detailsInfo">
+          <div><strong>Data uscita:</strong> <span id="detailsDate"></span></div>
+          <div><strong>Voto:</strong> <span id="detailsRating"></span></div>
+        </div>
+        <div id="genres"></div>
+        <div id="cast"></div>
+
+        <div id="seasonEpisodeSelect">
+          <label>Stagione: 
+            <select id="seasonSelect"></select>
+          </label>
+          <label>Episodio: 
+            <select id="episodeSelect"></select>
+          </label>
+        </div>
+
+        <button id="playBtnDetails">Riproduci</button>
+      </div>
+    </div>
   </div>
+</div>
 
-  <iframe id="playerFrame"></iframe>
+<iframe id="playerFrame" style="display:none;"></iframe>
 
-  <script>
-    const tmdbApiKey = 'a3c17d492a24a9f77acb23626404edd1';
-    window.open = () => null; // blocca popup
+<script>
+  const apiKey = 'a3c17d492a24a9f77acb23626404edd1';
 
-    let currentTVId = null;
+  // Blocca popup esterni
+  window.open = () => null;
 
-    async function search(query, type = 'movie') {
-      const url = `https://api.themoviedb.org/3/search/${type}?api_key=${tmdbApiKey}&language=it-IT&query=${encodeURIComponent(query)}`;
-      const res = await fetch(url);
-      const data = await res.json();
-      return data.results || [];
-    }
-
-    async function fetchSeasons(tvId) {
-      const url = `https://api.themoviedb.org/3/tv/${tvId}?api_key=${tmdbApiKey}&language=it-IT`;
-      const res = await fetch(url);
-      const data = await res.json();
-      return data.seasons || [];
-    }
-
-    async function fetchEpisodes(tvId, seasonNumber) {
-      const url = `https://api.themoviedb.org/3/tv/${tvId}/season/${seasonNumber}?api_key=${tmdbApiKey}&language=it-IT`;
-      const res = await fetch(url);
-      const data = await res.json();
-      return data.episodes || [];
-    }
-
-    function createCard(item, type) {
-      const card = document.createElement('div');
-      card.className = 'card';
-      const imgSrc = item.poster_path
-        ? `https://image.tmdb.org/t/p/w300${item.poster_path}`
-        : 'https://via.placeholder.com/100x150?text=No+Image';
-      card.innerHTML = `
-        <img src="${imgSrc}" alt="${item.name || item.title}" />
-        <h3>${item.name || item.title}</h3>
-      `;
-      card.addEventListener('click', async () => {
-        const iframe = document.getElementById('playerFrame');
-        const picker = document.getElementById('seasonEpisodePicker');
-        iframe.style.display = 'none';
-        iframe.src = '';
-
-        if (type === 'movie') {
-          iframe.src = `https://vixsrc.to/movie/${item.id}`;
-          iframe.style.display = 'block';
-          iframe.scrollIntoView({ behavior: 'smooth' });
-          picker.style.display = 'none';
-        } else {
-          currentTVId = item.id;
-          const seasons = await fetchSeasons(currentTVId);
-          const seasonSelect = document.getElementById('seasonSelect');
-          seasonSelect.innerHTML = '';
-          seasons.forEach(s => {
-            if (s.season_number > 0)
-              seasonSelect.innerHTML += `<option value="${s.season_number}">Stagione ${s.season_number}</option>`;
-          });
-          updateEpisodes();
-          picker.style.display = 'block';
-          picker.scrollIntoView({ behavior: 'smooth' });
-        }
-      });
-      return card;
-    }
-
-    async function updateEpisodes() {
-      const seasonNum = document.getElementById('seasonSelect').value;
-      const episodes = await fetchEpisodes(currentTVId, seasonNum);
-      const episodeSelect = document.getElementById('episodeSelect');
-      episodeSelect.innerHTML = '';
-      episodes.forEach(e => {
-        episodeSelect.innerHTML += `<option value="${e.episode_number}">Ep ${e.episode_number}</option>`;
-      });
-    }
-
-    async function playSelectedEpisode() {
-      const season = document.getElementById('seasonSelect').value;
-      const episode = document.getElementById('episodeSelect').value;
-      const iframe = document.getElementById('playerFrame');
-      iframe.src = `https://vixsrc.to/tv/${currentTVId}/${season}/${episode}`;
-      iframe.style.display = 'block';
-      iframe.scrollIntoView({ behavior: 'smooth' });
-    }
-
-    document.getElementById('searchBtn').addEventListener('click', doSearch);
-    document.getElementById('searchInput').addEventListener('keydown', e => {
-      if (e.key === 'Enter') doSearch();
-    });
-    document.getElementById('seasonSelect').addEventListener('change', updateEpisodes);
-
-    async function doSearch() {
-      const query = document.getElementById('searchInput').value.trim();
-      const type = document.getElementById('typeSelect').value;
-      const resultsDiv = document.getElementById('results');
-      const iframe = document.getElementById('playerFrame');
-      const picker = document.getElementById('seasonEpisodePicker');
-
-      if (!query) return;
-
-      resultsDiv.innerHTML = '';
-      iframe.style.display = 'none';
-      picker.style.display = 'none';
-      const results = await search(query, type);
-      if (!results.length) {
-        resultsDiv.innerHTML = '<p style="text-align:center;">Nessun risultato trovato.</p>';
-        return;
-      }
-      results.forEach(item => {
-        resultsDiv.appendChild(createCard(item, type));
-      });
-    }
-  </script>
-
-</body>
-</html>
+  const searchInput = document.getElementById('searchInput');
+  const searchBtn = document.getElementById('searchBtn');
+ 
