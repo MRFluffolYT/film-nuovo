@@ -8,11 +8,13 @@
     .grid { display: grid; grid-template-columns: repeat(auto-fill,minmax(180px,1fr)); gap: 20px; }
     .card { background: #222; border-radius: 8px; padding: 10px; text-align: center; }
     .card img { width: 100%; border-radius: 6px; }
+    #debug { margin-top: 20px; font-size: 0.9em; color: #ccc; white-space: pre-wrap; max-height: 200px; overflow-y: auto; background: #222; padding: 10px; border-radius: 6px; }
   </style>
 </head>
 <body>
   <h1>Film da VixSrc + TMDb</h1>
   <div id="filmGrid">Caricamento film...</div>
+  <div id="debug">Debug:</div>
 
   <script>
     const vixsrcApi = 'https://vixsrc.to/api/list/movie/?lang=it';
@@ -20,33 +22,44 @@
     const tmdbApiKey = 'a3c17d492a24a9f77acb23626404edd1';  // Tua API key TMDb
     const tmdbBaseUrl = 'https://api.themoviedb.org/3/movie/';
 
+    const debugEl = document.getElementById('debug');
+    function debug(msg) {
+      debugEl.textContent += '\n' + msg;
+    }
+
     async function fetchMovieDetails(tmdbId) {
       const url = `${tmdbBaseUrl}${tmdbId}?api_key=${tmdbApiKey}&language=it`;
       const res = await fetch(url);
-      if (!res.ok) throw new Error('TMDb API error');
+      if (!res.ok) throw new Error('TMDb API error ' + res.status);
       return await res.json();
     }
 
     async function loadMovies() {
       const grid = document.getElementById('filmGrid');
-      grid.textContent = '';
+      grid.textContent = 'Sto caricando la lista da VixSrc...';
+      debug('Avvio caricamento lista VixSrc...');
       try {
         const res = await fetch(proxy);
+        if (!res.ok) throw new Error(`Errore risposta API VixSrc: ${res.status}`);
         const tmdbIds = await res.json();
+        debug('Lista TMDb IDs ricevuta: ' + JSON.stringify(tmdbIds.slice(0,5)) + (tmdbIds.length > 5 ? `... (${tmdbIds.length} totali)` : ''));
 
         if (!Array.isArray(tmdbIds) || tmdbIds.length === 0) {
           grid.textContent = 'Nessun film trovato.';
+          debug('Nessun film trovato.');
           return;
         }
 
+        grid.textContent = 'Sto caricando i dettagli TMDb...';
+        debug('Inizio caricamento dettagli TMDb...');
         grid.className = 'grid';
 
-        // Limitiamo a 10 per non sovraccaricare TMDb API
         const limitedIds = tmdbIds.slice(0, 10);
 
         for (const item of limitedIds) {
           try {
             const details = await fetchMovieDetails(item.tmdb_id);
+            debug(`Film caricato: ${details.title} (${details.release_date ? details.release_date.substring(0,4) : 'N/D'})`);
             const card = document.createElement('div');
             card.className = 'card';
             card.innerHTML = `
@@ -56,11 +69,12 @@
             `;
             grid.appendChild(card);
           } catch (e) {
-            console.warn('Errore caricando film TMDb:', e);
+            debug('Errore caricando film TMDb: ' + e.message);
           }
         }
       } catch (error) {
         grid.textContent = 'Errore caricamento dati: ' + error.message;
+        debug('Errore generale: ' + error.message);
       }
     }
 
