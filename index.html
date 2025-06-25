@@ -5,154 +5,230 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>JoinoFlix</title>
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
+    /* Reset */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
     body {
       background-color: #141414;
       color: #fff;
-      font-family: 'Helvetica Neue', sans-serif;
-      padding: 16px;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      padding: 20px;
       min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
     }
-    header { text-align: center; margin-bottom: 20px; }
-    header h1 { color: #e50914; font-size: 26px; }
+
+    header {
+      margin-bottom: 25px;
+      user-select: none;
+    }
+    header h1 {
+      color: #e50914;
+      font-weight: 900;
+      font-size: 2.8rem;
+      letter-spacing: 3px;
+      text-shadow: 0 0 10px #e50914;
+    }
 
     #search-container {
       display: flex;
       justify-content: center;
-      margin-bottom: 20px;
-      flex-wrap: wrap;
+      width: 100%;
+      max-width: 600px;
+      margin-bottom: 30px;
       gap: 10px;
     }
+
     #searchInput {
-      flex: 1 1 300px;
-      padding: 10px;
-      font-size: 16px;
-      border-radius: 6px;
+      flex-grow: 1;
+      padding: 14px 18px;
+      font-size: 1.1rem;
+      border-radius: 6px 0 0 6px;
       border: none;
       outline: none;
+      background-color: #222;
+      color: #eee;
+      transition: background-color 0.3s;
     }
+    #searchInput::placeholder {
+      color: #888;
+    }
+    #searchInput:focus {
+      background-color: #333;
+    }
+
     #searchBtn {
-      padding: 10px 15px;
-      font-size: 16px;
+      padding: 14px 25px;
+      font-size: 1.1rem;
       background-color: #e50914;
-      color: #fff;
       border: none;
-      border-radius: 6px;
+      border-radius: 0 6px 6px 0;
+      color: white;
+      font-weight: 700;
       cursor: pointer;
-      flex-shrink: 0;
+      transition: background-color 0.3s;
+      user-select: none;
+    }
+    #searchBtn:hover {
+      background-color: #b0060f;
     }
 
     #results {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-      gap: 12px;
-      max-width: 900px;
-      margin: 0 auto;
+      gap: 16px;
+      width: 100%;
+      max-width: 960px;
     }
+
     .card {
       background-color: #222;
-      border-radius: 6px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.7);
       overflow: hidden;
       cursor: pointer;
-      transition: transform 0.2s;
-      position: relative;
-      user-select: none;
+      display: flex;
+      flex-direction: column;
+      transition: transform 0.2s ease, box-shadow 0.3s ease;
     }
-    .card:hover { transform: scale(1.05); }
+    .card:hover {
+      transform: scale(1.07);
+      box-shadow: 0 0 20px #e50914;
+      z-index: 10;
+    }
     .card img {
       width: 100%;
-      height: 170px;
+      height: 180px;
       object-fit: cover;
-      display: block;
+      filter: brightness(0.9);
+      transition: filter 0.3s ease;
+    }
+    .card:hover img {
+      filter: brightness(1);
     }
     .card h3 {
-      font-size: 13px;
+      font-size: 14px;
+      padding: 8px 10px;
       text-align: center;
-      padding: 4px 6px;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
-    }
-    .badge {
-      position: absolute;
-      top: 6px;
-      left: 6px;
-      background: #e50914;
-      padding: 3px 7px;
-      font-size: 11px;
-      font-weight: 700;
-      border-radius: 4px;
-      user-select:none;
-      text-transform: uppercase;
+      color: #ddd;
+      flex-grow: 1;
+      align-self: center;
     }
 
     #details {
       display: none;
-      margin: 30px auto 0;
+      margin-top: 40px;
       background-color: #222;
-      border-radius: 10px;
-      padding: 20px;
-      max-width: 800px;
+      border-radius: 12px;
+      padding: 30px;
+      max-width: 900px;
+      width: 90%;
+      box-shadow: 0 0 25px #e50914;
+      user-select: none;
     }
+
     #details h2 {
       color: #e50914;
-      margin-bottom: 10px;
+      font-size: 2rem;
+      margin-bottom: 15px;
+      text-shadow: 0 0 8px #e50914;
     }
     #details p {
-      font-size: 15px;
-      margin-bottom: 8px;
-      line-height: 1.3;
+      font-size: 1rem;
+      line-height: 1.4;
+      color: #ccc;
+      margin-bottom: 12px;
     }
-    #details .meta {
-      margin-bottom: 15px;
-      font-size: 14px;
-      color: #bbb;
+    #details strong {
+      color: #fff;
     }
+
     #playBtn, #loadEpisodeBtn {
       background-color: #e50914;
       color: #fff;
-      padding: 10px 20px;
-      font-size: 15px;
+      padding: 14px 26px;
+      font-size: 1.1rem;
       border: none;
-      border-radius: 6px;
+      border-radius: 8px;
       cursor: pointer;
-      margin-top: 10px;
+      margin-top: 18px;
+      font-weight: 700;
+      transition: background-color 0.3s;
+      user-select: none;
+    }
+    #playBtn:hover, #loadEpisodeBtn:hover {
+      background-color: #b0060f;
     }
 
     iframe {
       display: none;
       width: 100%;
-      height: 420px;
+      height: 480px;
       border: none;
-      border-radius: 10px;
-      margin-top: 25px;
-      box-shadow: 0 0 10px rgba(229, 9, 20, 0.4);
+      border-radius: 12px;
+      margin-top: 30px;
+      box-shadow: 0 0 30px rgba(229, 9, 20, 0.6);
     }
 
     #episodeSelectWrap {
       display: none;
-      margin-top: 10px;
+      margin-top: 20px;
+      font-size: 1rem;
+      color: #ddd;
+      user-select: none;
+    }
+
+    #episodeSelectWrap label {
+      margin-right: 15px;
     }
 
     select {
-      padding: 8px;
-      font-size: 15px;
-      margin-right: 8px;
-      border-radius: 4px;
+      padding: 10px;
+      font-size: 1rem;
+      border-radius: 6px;
       border: none;
-      background: #333;
+      background-color: #333;
       color: #eee;
-      min-width: 100px;
+      cursor: pointer;
+      user-select: none;
+      transition: background-color 0.3s;
+    }
+    select:hover {
+      background-color: #444;
     }
 
-    @media (max-width: 600px) {
-      iframe { height: 300px; }
+    @media (max-width: 700px) {
+      #results {
+        grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+      }
+      .card img {
+        height: 140px;
+      }
+      #details {
+        padding: 20px;
+      }
+      iframe {
+        height: 320px;
+      }
+    }
+
+    @media (max-width: 400px) {
       #search-container {
         flex-direction: column;
-        align-items: stretch;
+        gap: 15px;
       }
-      #searchBtn {
-        flex-shrink: 1;
+      #searchInput, #searchBtn {
+        width: 100%;
+        border-radius: 6px;
+      }
+      #playBtn, #loadEpisodeBtn {
         width: 100%;
       }
     }
@@ -165,32 +241,33 @@
   </header>
 
   <div id="search-container">
-    <input type="text" id="searchInput" placeholder="Cerca film o serie..." />
+    <input type="text" id="searchInput" placeholder="Cerca un titolo..." autocomplete="off" />
     <button id="searchBtn">Cerca</button>
   </div>
 
   <div id="results"></div>
 
-  <div id="details">
+  <div id="details" aria-live="polite">
     <h2 id="detailsTitle"></h2>
     <p id="detailsOverview"></p>
-    <p class="meta"><strong>Data uscita:</strong> <span id="detailsDate"></span> | <strong>Voto:</strong> <span id="detailsRating"></span></p>
+    <p><strong>Data uscita:</strong> <span id="detailsDate"></span> | <strong>Voto:</strong> <span id="detailsRating"></span></p>
     <div id="episodeSelectWrap">
-      <label>Stagione:
-        <select id="seasonSelect"></select>
+      <label for="seasonSelect">Stagione:
+        <select id="seasonSelect" name="seasonSelect"></select>
       </label>
-      <label>Episodio:
-        <select id="episodeSelect"></select>
+      <label for="episodeSelect">Episodio:
+        <select id="episodeSelect" name="episodeSelect"></select>
       </label>
-      <button id="loadEpisodeBtn">Riproduci Episodio</button>
+      <button id="loadEpisodeBtn">Riproduci</button>
     </div>
-    <button id="playBtn" style="display:none;">Riproduci Film</button>
+    <button id="playBtn" style="display:none;">Riproduci</button>
   </div>
 
-  <iframe id="playerFrame"></iframe>
+  <iframe id="playerFrame" allowfullscreen></iframe>
 
   <script>
     const apiKey = 'a3c17d492a24a9f77acb23626404edd1';
+    window.open = () => null;
 
     const searchInput = document.getElementById('searchInput');
     const searchBtn = document.getElementById('searchBtn');
@@ -207,7 +284,8 @@
     const episodeSelectWrap = document.getElementById('episodeSelectWrap');
     const loadEpisodeBtn = document.getElementById('loadEpisodeBtn');
 
-    let currentItem = null; // contiene l’oggetto scelto
+    let currentId = null;
+    let currentType = null;
 
     searchBtn.onclick = doSearch;
     searchInput.addEventListener('keydown', e => { if (e.key === 'Enter') doSearch(); });
@@ -215,92 +293,9 @@
     async function doSearch() {
       const query = searchInput.value.trim();
       if (!query) return;
-
       resultsDiv.innerHTML = '';
       detailsDiv.style.display = 'none';
       playerFrame.style.display = 'none';
-      currentItem = null;
 
-      // Ricerca multi tipo (film + serie)
-      const url = `https://api.themoviedb.org/3/search/multi?api_key=${apiKey}&language=it-IT&query=${encodeURIComponent(query)}&include_adult=false`;
-      try {
-        const res = await fetch(url);
-        if(!res.ok) throw new Error("Errore API");
-        const data = await res.json();
-
-        if (!data.results || data.results.length === 0) {
-          resultsDiv.innerHTML = '<p style="text-align:center; color:#999;">Nessun risultato trovato.</p>';
-          return;
-        }
-
-        // Mostra solo film e serie TV
-        const filtered = data.results.filter(i => i.media_type === 'movie' || i.media_type === 'tv');
-        filtered.forEach(item => {
-          const card = document.createElement('div');
-          card.className = 'card';
-          const posterPath = item.poster_path ? `https://image.tmdb.org/t/p/w300${item.poster_path}` : 'https://via.placeholder.com/120x170?text=No+Image';
-          const title = item.title || item.name || "Sconosciuto";
-          const typeBadge = item.media_type === 'movie' ? 'Film' : 'Serie';
-
-          card.innerHTML = `
-            <div class="badge">${typeBadge}</div>
-            <img src="${posterPath}" alt="${title}" />
-            <h3 title="${title}">${title}</h3>
-          `;
-
-          card.onclick = () => showDetails(item);
-          resultsDiv.appendChild(card);
-        });
-
-      } catch (e) {
-        resultsDiv.innerHTML = '<p style="text-align:center; color:#999;">Errore nella ricerca.</p>';
-        console.error(e);
-      }
-    }
-
-    async function showDetails(item) {
-      currentItem = item;
-      detailsTitle.textContent = item.title || item.name || "Sconosciuto";
-      detailsOverview.textContent = item.overview || "Nessuna descrizione disponibile.";
-      detailsDate.textContent = item.release_date || item.first_air_date || "N/D";
-      detailsRating.textContent = item.vote_average?.toFixed(1) || "N/D";
-
-      playerFrame.style.display = 'none';
-
-      if(item.media_type === 'movie') {
-        episodeSelectWrap.style.display = 'none';
-        playBtn.style.display = 'inline-block';
-      } else if(item.media_type === 'tv') {
-        playBtn.style.display = 'none';
-        episodeSelectWrap.style.display = 'block';
-
-        // carica stagioni
-        try {
-          const tvDetails = await fetch(`https://api.themoviedb.org/3/tv/${item.id}?api_key=${apiKey}&language=it-IT`).then(r => r.json());
-          seasonSelect.innerHTML = '';
-          tvDetails.seasons
-            .filter(s => s.season_number > 0)
-            .forEach(s => {
-              const opt = document.createElement('option');
-              opt.value = s.season_number;
-              opt.textContent = `Stagione ${s.season_number}`;
-              seasonSelect.appendChild(opt);
-            });
-          await loadEpisodes();
-        } catch (e) {
-          episodeSelect.innerHTML = '';
-          episodeSelectWrap.style.display = 'none';
-          console.error("Errore caricamento stagioni", e);
-        }
-      }
-      detailsDiv.style.display = 'block';
-      detailsDiv.scrollIntoView({behavior:"smooth"});
-    }
-
-    seasonSelect.onchange = loadEpisodes;
-
-    async function loadEpisodes() {
-      const season = seasonSelect.value;
-      if(!season) return;
-      try {
-        const epsData = await fetch(`https://api.themoviedb.org/3/tv/${currentItem.id}/season/${season}?api_key=${apiKey}&language=it-IT
+      // Cerco film e serie contemporaneamente e unisco risultati
+      const [moviesRes, tvRes] = await Promise.all([
