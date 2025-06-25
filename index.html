@@ -2,26 +2,69 @@
 <html lang="it">
 <head>
   <meta charset="UTF-8" />
-  <title>Test API VixSrc</title>
+  <title>Film da VixSrc + TMDb</title>
+  <style>
+    body { font-family: Arial; background: #111; color: white; padding: 20px; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fill,minmax(180px,1fr)); gap: 20px; }
+    .card { background: #222; border-radius: 8px; padding: 10px; text-align: center; }
+    .card img { width: 100%; border-radius: 6px; }
+  </style>
 </head>
 <body>
-  <h1>Test API VixSrc</h1>
-  <pre id="output">Caricamento...</pre>
+  <h1>Film da VixSrc + TMDb</h1>
+  <div id="filmGrid">Caricamento film...</div>
 
   <script>
-    const apiUrl = 'https://vixsrc.to/api/list/movie/?lang=it';
-    const proxy = 'https://corsproxy.io/?' + encodeURIComponent(apiUrl);
+    const vixsrcApi = 'https://vixsrc.to/api/list/movie/?lang=it';
+    const proxy = 'https://api.allorigins.win/raw?url=' + encodeURIComponent(vixsrcApi);
+    const tmdbApiKey = 'a3c17d492a24a9f77acb23626404edd1';  // Tua API key TMDb
+    const tmdbBaseUrl = 'https://api.themoviedb.org/3/movie/';
 
-    fetch(proxy)
-      .then(res => res.json())
-      .then(data => {
-        document.getElementById('output').textContent = JSON.stringify(data, null, 2);
-        console.log(data);
-      })
-      .catch(err => {
-        document.getElementById('output').textContent = 'Errore: ' + err.message;
-        console.error(err);
-      });
+    async function fetchMovieDetails(tmdbId) {
+      const url = `${tmdbBaseUrl}${tmdbId}?api_key=${tmdbApiKey}&language=it`;
+      const res = await fetch(url);
+      if (!res.ok) throw new Error('TMDb API error');
+      return await res.json();
+    }
+
+    async function loadMovies() {
+      const grid = document.getElementById('filmGrid');
+      grid.textContent = '';
+      try {
+        const res = await fetch(proxy);
+        const tmdbIds = await res.json();
+
+        if (!Array.isArray(tmdbIds) || tmdbIds.length === 0) {
+          grid.textContent = 'Nessun film trovato.';
+          return;
+        }
+
+        grid.className = 'grid';
+
+        // Limitiamo a 10 per non sovraccaricare TMDb API
+        const limitedIds = tmdbIds.slice(0, 10);
+
+        for (const item of limitedIds) {
+          try {
+            const details = await fetchMovieDetails(item.tmdb_id);
+            const card = document.createElement('div');
+            card.className = 'card';
+            card.innerHTML = `
+              <img src="https://image.tmdb.org/t/p/w300${details.poster_path}" alt="${details.title}">
+              <h3>${details.title}</h3>
+              <p>Anno: ${details.release_date ? details.release_date.substring(0,4) : 'N/D'}</p>
+            `;
+            grid.appendChild(card);
+          } catch (e) {
+            console.warn('Errore caricando film TMDb:', e);
+          }
+        }
+      } catch (error) {
+        grid.textContent = 'Errore caricamento dati: ' + error.message;
+      }
+    }
+
+    loadMovies();
   </script>
 </body>
 </html>
