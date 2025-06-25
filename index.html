@@ -1,89 +1,27 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-  <meta charset="UTF-8">
-  <title>Film da VixSrc</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background-color: #111;
-      color: #fff;
-      padding: 20px;
-    }
-    h1 {
-      text-align: center;
-    }
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-      gap: 20px;
-      margin-top: 20px;
-    }
-    .card {
-      background-color: #222;
-      padding: 10px;
-      border-radius: 8px;
-      text-align: center;
-      transition: transform 0.2s;
-    }
-    .card:hover {
-      transform: scale(1.03);
-    }
-    .card img {
-      width: 100%;
-      border-radius: 6px;
-    }
-    .card h3 {
-      font-size: 16px;
-      margin: 10px 0 5px;
-    }
-    .card p {
-      font-size: 14px;
-      color: #aaa;
-    }
-  </style>
+  <meta charset="UTF-8" />
+  <title>Test API VixSrc</title>
 </head>
 <body>
-  <h1>🎬 Film da VixSrc (Lingua IT)</h1>
-  <div id="filmGrid">Caricamento film in corso...</div>
+  <h1>Test API VixSrc</h1>
+  <pre id="output">Caricamento...</pre>
 
   <script>
     const apiUrl = 'https://vixsrc.to/api/list/movie/?lang=it';
-    const proxy = 'https://api.allorigins.win/raw?url=' + encodeURIComponent(apiUrl);
+    const proxy = 'https://corsproxy.io/?' + encodeURIComponent(apiUrl);
 
-    async function loadMovies() {
-      try {
-        const res = await fetch(proxy);
-        const data = await res.json();
-
-        const grid = document.getElementById('filmGrid');
-        grid.innerHTML = '';
-        grid.className = 'grid';
-
-        if (!data.results || !data.results.length) {
-          grid.innerHTML = '<p>Nessun film trovato.</p>';
-          return;
-        }
-
-        data.results.slice(0, 20).forEach(film => {
-          const card = document.createElement('div');
-          card.className = 'card';
-          card.innerHTML = `
-            <img src="${film.poster}" alt="${film.title}">
-            <h3>${film.title}</h3>
-            <p>Anno: ${film.year || 'N/D'}</p>
-          `;
-          grid.appendChild(card);
-        });
-      } catch (error) {
-        console.error('Errore nel caricamento dei dati:', error);
-        document.getElementById('filmGrid').innerHTML =
-          '<p>⚠️ Errore nel caricamento dei film. Riprova più tardi.</p>';
-      }
-    }
-
-    loadMovies();
+    fetch(proxy)
+      .then(res => res.json())
+      .then(data => {
+        document.getElementById('output').textContent = JSON.stringify(data, null, 2);
+        console.log(data);
+      })
+      .catch(err => {
+        document.getElementById('output').textContent = 'Errore: ' + err.message;
+        console.error(err);
+      });
   </script>
 </body>
 </html>
