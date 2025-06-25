@@ -2,73 +2,82 @@
 <html lang="it">
 <head>
 <meta charset="UTF-8" />
-<title>Film da VixSrc</title>
+<title>Ricerca Film VixSrc + TMDb</title>
 <style>
   body { font-family: Arial, sans-serif; background: #121212; color: white; padding: 20px; }
-  .grid { display: flex; flex-wrap: wrap; gap: 15px; }
+  input[type="text"] { width: 300px; padding: 8px; font-size: 16px; border-radius: 4px; border: none; }
+  button { padding: 8px 12px; font-size: 16px; border-radius: 4px; border: none; background: #1db954; color: white; cursor: pointer; }
+  button:hover { background: #17a44c; }
+  .results { margin-top: 20px; display: flex; flex-wrap: wrap; gap: 15px; }
   .card { width: 150px; cursor: pointer; background: #222; padding: 10px; border-radius: 8px; text-align: center; }
   .card img { width: 100%; border-radius: 5px; }
-  a { color: #1db954; text-decoration: none; }
-  a:hover { text-decoration: underline; }
+  iframe { margin-top: 30px; width: 100%; max-width: 800px; height: 450px; border: none; border-radius: 8px; }
 </style>
 </head>
 <body>
-<h1>Film da VixSrc</h1>
-<div id="loading">Sto caricando la lista da VixSrc...</div>
-<div id="movies" class="grid"></div>
+<h1>Ricerca Film con TMDb + Player VixSrc</h1>
+
+<div>
+  <input type="text" id="searchInput" placeholder="Cerca un film..." />
+  <button id="searchBtn">Cerca</button>
+</div>
+
+<div id="results" class="results"></div>
+
+<iframe id="playerFrame" src="" style="display:none;" allowfullscreen></iframe>
 
 <script>
 const tmdbApiKey = 'a3c17d492a24a9f77acb23626404edd1';
 
-async function getMovieDetails(tmdbId) {
-  const url = `https://api.themoviedb.org/3/movie/${tmdbId}?api_key=${tmdbApiKey}&language=it-IT`;
+async function searchMovies(query) {
+  if (!query) return [];
+  const url = `https://api.themoviedb.org/3/search/movie?api_key=${tmdbApiKey}&language=it-IT&query=${encodeURIComponent(query)}`;
   const res = await fetch(url);
-  if (!res.ok) return null;
-  return await res.json();
+  if (!res.ok) return [];
+  const data = await res.json();
+  return data.results || [];
 }
 
-async function loadMovies() {
-  const moviesContainer = document.getElementById('movies');
-  const loading = document.getElementById('loading');
-  loading.textContent = 'Caricamento in corso...';
+function createMovieCard(movie) {
+  const card = document.createElement('div');
+  card.className = 'card';
+  const poster = movie.poster_path ? `https://image.tmdb.org/t/p/w300${movie.poster_path}` : 'https://via.placeholder.com/150x225?text=No+Image';
+  card.innerHTML = `
+    <img src="${poster}" alt="${movie.title}" />
+    <h3>${movie.title}</h3>
+    <p>${movie.release_date ? movie.release_date.substring(0,4) : 'N/D'}</p>
+  `;
+  card.addEventListener('click', () => {
+    const player = document.getElementById('playerFrame');
+    player.src = `https://vixsrc.to/movie/${movie.id}`;
+    player.style.display = 'block';
+    // Scrolla al player
+    player.scrollIntoView({behavior: 'smooth'});
+  });
+  return card;
+}
 
-  try {
-    const res = await fetch('https://vixsrc.to/api/list/movie/?lang=it');
-    if (!res.ok) throw new Error('Impossibile caricare la lista');
-    const data = await res.json();
-
-    if (!Array.isArray(data) || data.length === 0) {
-      loading.textContent = 'Nessun film trovato.';
-      return;
-    }
-
-    // Prendiamo i primi 20 per non appesantire
-    const tmdbIds = data.slice(0, 20).map(item => item.tmdb_id);
-
-    for (const id of tmdbIds) {
-      const details = await getMovieDetails(id);
-      if (!details) continue;
-
-      const card = document.createElement('div');
-      card.className = 'card';
-
-      card.innerHTML = `
-        <a href="https://vixsrc.to/movie/${id}" target="_blank" rel="noopener noreferrer">
-          <img src="https://image.tmdb.org/t/p/w300${details.poster_path}" alt="${details.title}" />
-          <h3>${details.title}</h3>
-          <p>${details.release_date ? details.release_date.substring(0,4) : 'N/D'}</p>
-        </a>
-      `;
-      moviesContainer.appendChild(card);
-    }
-    loading.style.display = 'none';
-  } catch (error) {
-    loading.textContent = 'Errore nel caricamento dei dati.';
-    console.error(error);
+document.getElementById('searchBtn').addEventListener('click', async () => {
+  const query = document.getElementById('searchInput').value.trim();
+  const resultsDiv = document.getElementById('results');
+  resultsDiv.innerHTML = 'Sto cercando...';
+  const movies = await searchMovies(query);
+  if (movies.length === 0) {
+    resultsDiv.textContent = 'Nessun film trovato.';
+    document.getElementById('playerFrame').style.display = 'none';
+    return;
   }
-}
+  resultsDiv.innerHTML = '';
+  movies.forEach(movie => {
+    resultsDiv.appendChild(createMovieCard(movie));
+  });
+});
 
-loadMovies();
+document.getElementById('searchInput').addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') {
+    document.getElementById('searchBtn').click();
+  }
+});
 </script>
 </body>
 </html>
