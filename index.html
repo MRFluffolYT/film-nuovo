@@ -1,205 +1,213 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Film TMDb + Player VixSrc</title>
-<style>
-  body {
-    font-family: Arial, sans-serif;
-    background-color: #121212;
-    color: #eee;
-    margin: 0; padding: 20px;
-    display: flex; flex-direction: column; align-items: center;
-  }
-  h1 {
-    margin-bottom: 20px;
-  }
-  #search-container {
-    display: flex;
-    max-width: 600px;
-    width: 100%;
-    margin-bottom: 20px;
-  }
-  #searchInput {
-    flex-grow: 1;
-    padding: 12px 15px;
-    font-size: 18px;
-    border-radius: 8px 0 0 8px;
-    border: none;
-    outline: none;
-  }
-  #searchBtn {
-    padding: 12px 25px;
-    font-size: 18px;
-    border: none;
-    background-color: #1db954;
-    color: white;
-    cursor: pointer;
-    border-radius: 0 8px 8px 0;
-    transition: background-color 0.3s ease;
-  }
-  #searchBtn:hover {
-    background-color: #17a44c;
-  }
-  #results {
-    display: grid;
-    grid-template-columns: repeat(auto-fill,minmax(150px,1fr));
-    gap: 15px;
-    max-width: 900px;
-    width: 100%;
-    margin-bottom: 30px;
-  }
-  .card {
-    background: #222;
-    border-radius: 12px;
-    overflow: hidden;
-    cursor: pointer;
-    box-shadow: 0 0 8px #000;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
-  .card:hover {
-    transform: scale(1.05);
-    box-shadow: 0 0 15px #1db954;
-  }
-  .card img {
-    width: 100%;
-    height: 225px;
-    object-fit: cover;
-    user-select: none;
-  }
-  .card h3 {
-    font-size: 1rem;
-    margin: 10px 8px 5px 8px;
-    text-align: center;
-    line-height: 1.2;
-  }
-  .card p {
-    font-size: 0.9rem;
-    color: #ccc;
-    margin-bottom: 10px;
-  }
-  #loading {
-    margin-top: 15px;
-    font-style: italic;
-    color: #bbb;
-  }
-  iframe {
-    width: 100%;
-    max-width: 900px;
-    height: 520px;
-    border: none;
-    border-radius: 14px;
-    box-shadow: 0 0 20px #1db954aa;
-    margin-bottom: 40px;
-  }
-  @media (max-width: 600px) {
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>JoinoFlix</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #141414;
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+    }
+
+    h1 {
+      font-size: 2em;
+      margin: 10px 0 20px;
+      color: #e50914;
+    }
+
+    #search-container {
+      display: flex;
+      max-width: 700px;
+      width: 100%;
+      margin-bottom: 25px;
+    }
+
     #searchInput {
-      font-size: 16px;
+      flex-grow: 1;
+      padding: 14px;
+      font-size: 18px;
+      border: none;
+      border-radius: 8px 0 0 8px;
+      outline: none;
     }
+
     #searchBtn {
-      font-size: 16px;
+      padding: 14px 25px;
+      background-color: #e50914;
+      color: white;
+      border: none;
+      font-size: 18px;
+      cursor: pointer;
+      border-radius: 0 8px 8px 0;
+      transition: background-color 0.3s ease;
     }
+
+    #searchBtn:hover {
+      background-color: #b00610;
+    }
+
+    #results {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: 20px;
+      max-width: 1100px;
+      width: 100%;
+    }
+
+    .card {
+      background: #1c1c1c;
+      border-radius: 8px;
+      overflow: hidden;
+      cursor: pointer;
+      transition: transform 0.3s;
+    }
+
+    .card:hover {
+      transform: scale(1.07);
+    }
+
     .card img {
-      height: 180px;
+      width: 100%;
+      height: 240px;
+      object-fit: cover;
     }
-  }
-</style>
+
+    .card h3 {
+      margin: 8px;
+      font-size: 1em;
+      text-align: center;
+    }
+
+    .card p {
+      margin: 0 8px 12px;
+      font-size: 0.9em;
+      color: #aaa;
+      text-align: center;
+    }
+
+    #loading {
+      margin-top: 15px;
+      font-style: italic;
+      color: #aaa;
+    }
+
+    #playerFrame {
+      margin-top: 40px;
+      width: 100%;
+      max-width: 960px;
+      height: 540px;
+      border: none;
+      border-radius: 10px;
+      box-shadow: 0 0 25px rgba(255, 0, 0, 0.3);
+      display: none;
+    }
+
+    @media (max-width: 600px) {
+      #searchInput, #searchBtn {
+        font-size: 16px;
+        padding: 12px;
+      }
+      .card img {
+        height: 200px;
+      }
+    }
+  </style>
 </head>
 <body>
 
-<h1>Ricerca Film TMDb + Player VixSrc</h1>
+  <h1>🎬 JoinoFlix</h1>
 
-<div id="search-container">
-  <input type="text" id="searchInput" placeholder="Cerca un film..." autocomplete="off" />
-  <button id="searchBtn">Cerca</button>
-</div>
+  <div id="search-container">
+    <input type="text" id="searchInput" placeholder="Cerca un film..." />
+    <button id="searchBtn">Cerca</button>
+  </div>
 
-<div id="loading" style="display:none;">Sto cercando...</div>
-<div id="results"></div>
+  <div id="loading" style="display:none;">Caricamento in corso...</div>
+  <div id="results"></div>
 
-<iframe id="playerFrame" src="" style="display:none;"></iframe>
+  <iframe id="playerFrame"></iframe>
 
-<script>
-const tmdbApiKey = 'a3c17d492a24a9f77acb23626404edd1';
+  <script>
+    const tmdbApiKey = 'a3c17d492a24a9f77acb23626404edd1'; // tua chiave API
 
-// Blocca popup da window.open nel tuo sito (non blocca popup dentro iframe)
-window.open = function() {
-  console.log('Popup bloccato da script interno!');
-  return null;
-};
+    // Blocco popup da window.open nel tuo sito
+    window.open = function () {
+      console.warn("Popup bloccato.");
+      return null;
+    };
 
-async function searchMovies(query) {
-  if (!query) return [];
-  const url = `https://api.themoviedb.org/3/search/movie?api_key=${tmdbApiKey}&language=it-IT&query=${encodeURIComponent(query)}`;
-  try {
-    const res = await fetch(url);
-    if (!res.ok) throw new Error('Errore nella richiesta TMDb');
-    const data = await res.json();
-    return data.results || [];
-  } catch (err) {
-    console.error(err);
-    return [];
-  }
-}
+    async function searchMovies(query) {
+      const url = `https://api.themoviedb.org/3/search/movie?api_key=${tmdbApiKey}&language=it-IT&query=${encodeURIComponent(query)}`;
+      try {
+        const res = await fetch(url);
+        const data = await res.json();
+        return data.results || [];
+      } catch (e) {
+        console.error("Errore durante il fetch dei film:", e);
+        return [];
+      }
+    }
 
-function createMovieCard(movie) {
-  const card = document.createElement('div');
-  card.className = 'card';
-  const poster = movie.poster_path 
-    ? `https://image.tmdb.org/t/p/w300${movie.poster_path}` 
-    : 'https://via.placeholder.com/150x225?text=No+Image';
-  card.innerHTML = `
-    <img src="${poster}" alt="${movie.title}" loading="lazy" />
-    <h3>${movie.title}</h3>
-    <p>${movie.release_date ? movie.release_date.substring(0,4) : 'N/D'}</p>
-  `;
-  card.addEventListener('click', () => {
-    const player = document.getElementById('playerFrame');
-    player.src = `https://vixsrc.to/movie/${movie.id}`;
-    player.style.display = 'block';
-    player.scrollIntoView({behavior: 'smooth'});
-  });
-  return card;
-}
+    function createMovieCard(movie) {
+      const card = document.createElement('div');
+      card.className = 'card';
 
-const searchInput = document.getElementById('searchInput');
-const searchBtn = document.getElementById('searchBtn');
-const resultsDiv = document.getElementById('results');
-const loadingDiv = document.getElementById('loading');
-const playerFrame = document.getElementById('playerFrame');
+      const poster = movie.poster_path
+        ? `https://image.tmdb.org/t/p/w300${movie.poster_path}`
+        : 'https://via.placeholder.com/300x450?text=No+Image';
 
-async function doSearch() {
-  const query = searchInput.value.trim();
-  if (!query) return;
-  resultsDiv.innerHTML = '';
-  loadingDiv.style.display = 'block';
-  playerFrame.style.display = 'none';
-  playerFrame.src = '';
+      card.innerHTML = `
+        <img src="${poster}" alt="${movie.title}" />
+        <h3>${movie.title}</h3>
+        <p>${movie.release_date ? movie.release_date.slice(0, 4) : 'N/D'}</p>
+      `;
 
-  const movies = await searchMovies(query);
-  loadingDiv.style.display = 'none';
+      card.addEventListener('click', () => {
+        const iframe = document.getElementById('playerFrame');
+        iframe.src = `https://vixsrc.to/movie/${movie.id}`;
+        iframe.style.display = 'block';
+        iframe.scrollIntoView({ behavior: 'smooth' });
+      });
 
-  if (movies.length === 0) {
-    resultsDiv.textContent = 'Nessun film trovato.';
-    return;
-  }
-  resultsDiv.innerHTML = '';
-  movies.forEach(movie => {
-    resultsDiv.appendChild(createMovieCard(movie));
-  });
-}
+      return card;
+    }
 
-searchBtn.addEventListener('click', doSearch);
-searchInput.addEventListener('keydown', e => {
-  if (e.key === 'Enter') {
-    doSearch();
-  }
-});
-</script>
+    async function doSearch() {
+      const query = document.getElementById('searchInput').value.trim();
+      const resultsDiv = document.getElementById('results');
+      const loading = document.getElementById('loading');
+      const iframe = document.getElementById('playerFrame');
+
+      resultsDiv.innerHTML = '';
+      iframe.style.display = 'none';
+      iframe.src = '';
+      loading.style.display = 'block';
+
+      const movies = await searchMovies(query);
+      loading.style.display = 'none';
+
+      if (movies.length === 0) {
+        resultsDiv.innerHTML = '<p>Nessun film trovato.</p>';
+        return;
+      }
+
+      movies.forEach(movie => {
+        resultsDiv.appendChild(createMovieCard(movie));
+      });
+    }
+
+    document.getElementById('searchBtn').addEventListener('click', doSearch);
+    document.getElementById('searchInput').addEventListener('keydown', e => {
+      if (e.key === 'Enter') doSearch();
+    });
+  </script>
 
 </body>
 </html>
