@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <title>Film da VixSrc</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #111;
+      color: #fff;
+      padding: 20px;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 20px;
+    }
+    .card {
+      background-color: #222;
+      padding: 10px;
+      border-radius: 8px;
+      text-align: center;
+      transition: transform 0.2s;
+    }
+    .card:hover {
+      transform: scale(1.03);
+    }
+    .card img {
+      width: 100%;
+      border-radius: 6px;
+    }
+    .card h3 {
+      font-size: 16px;
+      margin: 10px 0 5px;
+    }
+    .card p {
+      font-size: 14px;
+      color: #aaa;
+    }
+  </style>
+</head>
+<body>
+  <h1>🎬 Film disponibili su VixSrc (IT)</h1>
+  <div id="filmGrid">Caricamento...</div>
+
+  <script>
+    const apiUrl = 'https://vixsrc.to/api/list/movie/?lang=it';
+    const proxy = 'https://corsproxy.io/?' + encodeURIComponent(apiUrl);
+
+    async function loadMovies() {
+      try {
+        const res = await fetch(proxy);
+        const data = await res.json();
+        const grid = document.getElementById('filmGrid');
+        grid.className = 'grid';
+        grid.innerHTML = '';
+
+        if (!data.results || data.results.length === 0) {
+          grid.innerHTML = '<p>Nessun film trovato.</p>';
+          return;
+        }
+
+        data.results.slice(0, 20).forEach(film => {
+          const card = document.createElement('div');
+          card.className = 'card';
+          card.innerHTML = `
+            <img src="${film.poster}" alt="${film.title}">
+            <h3>${film.title}</h3>
+            <p>Anno: ${film.year || 'N/D'}</p>
+          `;
+          grid.appendChild(card);
+        });
+      } catch (e) {
+        console.error(e);
+        document.getElementById('filmGrid').innerHTML = '<p>Errore nel caricamento dei dati.</p>';
+      }
+    }
+
+    loadMovies();
+  </script>
+</body>
+</html>
