@@ -3,17 +3,14 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Ricerca Film </title>
+<title>Film TMDb + Player VixSrc</title>
 <style>
   body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: #121212;
+    font-family: Arial, sans-serif;
+    background-color: #121212;
     color: #eee;
-    margin: 0;
-    padding: 20px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+    margin: 0; padding: 20px;
+    display: flex; flex-direction: column; align-items: center;
   }
   h1 {
     margin-bottom: 20px;
@@ -48,7 +45,7 @@
   #results {
     display: grid;
     grid-template-columns: repeat(auto-fill,minmax(150px,1fr));
-    gap: 18px;
+    gap: 15px;
     max-width: 900px;
     width: 100%;
     margin-bottom: 30px;
@@ -114,7 +111,7 @@
 </head>
 <body>
 
-<h1>Ricerca Film con TMDb + Player VixSrc</h1>
+<h1>Ricerca Film TMDb + Player VixSrc</h1>
 
 <div id="search-container">
   <input type="text" id="searchInput" placeholder="Cerca un film..." autocomplete="off" />
@@ -124,21 +121,16 @@
 <div id="loading" style="display:none;">Sto cercando...</div>
 <div id="results"></div>
 
-<iframe id="playerFrame" src="" style="display:none;" sandbox="allow-scripts allow-same-origin allow-forms allow-pointer-lock"></iframe>
+<iframe id="playerFrame" src="" style="display:none;"></iframe>
 
 <script>
 const tmdbApiKey = 'a3c17d492a24a9f77acb23626404edd1';
 
-function blockPopups() {
-  // Override window.open to bloccare popup da codice in questa pagina
-  window.open = function() {
-    console.log('Popup bloccato!');
-    return null;
-  };
-}
-
-// Chiamalo subito
-blockPopups();
+// Blocca popup da window.open nel tuo sito (non blocca popup dentro iframe)
+window.open = function() {
+  console.log('Popup bloccato da script interno!');
+  return null;
+};
 
 async function searchMovies(query) {
   if (!query) return [];
