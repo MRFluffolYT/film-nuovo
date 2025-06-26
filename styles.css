@@ -105,10 +105,9 @@ header h1 {
 }
 
 .hidden {
-  display: none;
+  display: none !important;
 }
 
-/* ✅ Responsive Design */
 @media screen and (max-width: 600px) {
   header {
     padding: 15px;
