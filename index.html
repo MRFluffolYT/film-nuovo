@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>JoinoFlix</title>
   <style>
+    /* ... tutto il tuo CSS esistente ... */
     * {
       box-sizing: border-box;
       margin: 0; padding: 0;
@@ -354,6 +355,15 @@
   document.getElementById('searchBtn').addEventListener('click', doSearch);
   document.getElementById('searchInput').addEventListener('keydown', e => {
     if (e.key === 'Enter') doSearch();
+  });
+</script>
+
+<script>
+  // Avviso se NON usi Brave
+  document.addEventListener('DOMContentLoaded', () => {
+    if (!navigator.userAgent.toLowerCase().includes('brave')) {
+      alert("⚠️ Per evitare pubblicità fastidiose nel player, ti consigliamo di aprire il sito con il browser Brave.");
+    }
   });
 </script>
 
