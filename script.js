@@ -5,19 +5,24 @@ const playerModal = document.getElementById('playerModal');
 const playerFrame = document.getElementById('playerFrame');
 const closeBtn = document.getElementById('closeBtn');
 
-searchInput.addEventListener('input', async () => {
-  const query = searchInput.value.trim();
-  if (query.length > 2) {
-    const results = await searchTMDb(query);
-    displayResults(results);
-  }
-});
-
+// Chiudi il player con la X
 closeBtn.addEventListener('click', () => {
   playerModal.classList.add('hidden');
   playerFrame.src = '';
 });
 
+// Cerca dopo aver digitato
+searchInput.addEventListener('input', async () => {
+  const query = searchInput.value.trim();
+  if (query.length > 2) {
+    const results = await searchTMDb(query);
+    displayResults(results);
+  } else {
+    resultsContainer.innerHTML = '';
+  }
+});
+
+// API TMDb
 async function searchTMDb(query) {
   const url = `https://api.themoviedb.org/3/search/multi?api_key=${apiKey}&language=it-IT&query=${encodeURIComponent(query)}`;
   const res = await fetch(url);
@@ -25,6 +30,7 @@ async function searchTMDb(query) {
   return data.results.sort((a, b) => b.popularity - a.popularity);
 }
 
+// Mostra i risultati nella griglia
 function displayResults(results) {
   resultsContainer.innerHTML = '';
   results.forEach(item => {
@@ -46,13 +52,18 @@ function displayResults(results) {
   });
 }
 
+// Apre il player in base al tipo
 function openPlayer(item) {
+  let url;
+
   if (item.media_type === 'movie') {
-    playerFrame.src = `https://vixsrc.to/movie/${item.id}`;
+    url = `https://vixsrc.to/movie/${item.id}`;
   } else if (item.media_type === 'tv') {
-    const season = item.first_air_date ? 1 : 1;
+    const season = 1;
     const episode = 1;
-    playerFrame.src = `https://vixsrc.to/tv/${item.id}/${season}/${episode}`;
+    url = `https://vixsrc.to/tv/${item.id}/${season}/${episode}`;
   }
+
+  playerFrame.src = url;
   playerModal.classList.remove('hidden');
 }
