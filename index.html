@@ -100,6 +100,16 @@
       box-shadow: 0 0 10px rgba(229, 9, 20, 0.4);
     }
 
+    #tvControls {
+      display: none;
+      margin-top: 20px;
+      text-align: center;
+    }
+
+    #tvControls label {
+      margin: 0 10px;
+    }
+
     @media (max-width: 480px) {
       .card img {
         height: 140px;
@@ -125,11 +135,21 @@
   <div id="loading" style="display: none;">Caricamento in corso...</div>
   <div id="results"></div>
 
+  <div id="tvControls">
+    <label>
+      Stagione:
+      <select id="seasonSelect"></select>
+    </label>
+    <label>
+      Episodio:
+      <select id="episodeSelect"></select>
+    </label>
+  </div>
+
   <iframe id="playerFrame" allowfullscreen></iframe>
 
   <script>
     const tmdbApiKey = 'a3c17d492a24a9f77acb23626404edd1';
-    window.open = () => null; // Blocca popup
 
     async function searchMedia(query) {
       const url = `https://api.themoviedb.org/3/search/multi?api_key=${tmdbApiKey}&language=it-IT&query=${encodeURIComponent(query)}`;
@@ -141,6 +161,70 @@
         console.error(err);
         return [];
       }
+    }
+
+    async function getTvDetails(tvId) {
+      const url = `https://api.themoviedb.org/3/tv/${tvId}?api_key=${tmdbApiKey}&language=it-IT`;
+      try {
+        const res = await fetch(url);
+        return await res.json();
+      } catch (err) {
+        console.error(err);
+        return null;
+      }
+    }
+
+    async function setupTvControls(tvId) {
+      const controls = document.getElementById('tvControls');
+      const seasonSelect = document.getElementById('seasonSelect');
+      const episodeSelect = document.getElementById('episodeSelect');
+      const player = document.getElementById('playerFrame');
+
+      controls.style.display = 'block';
+      seasonSelect.innerHTML = '';
+      episodeSelect.innerHTML = '';
+
+      const details = await getTvDetails(tvId);
+      if (!details) return;
+
+      // Riempie stagioni
+      details.seasons.forEach(season => {
+        if (season.season_number > 0) {
+          const opt = document.createElement('option');
+          opt.value = season.season_number;
+          opt.textContent = `Stagione ${season.season_number}`;
+          seasonSelect.appendChild(opt);
+        }
+      });
+
+      async function updateEpisodes(seasonNumber) {
+        const url = `https://api.themoviedb.org/3/tv/${tvId}/season/${seasonNumber}?api_key=${tmdbApiKey}&language=it-IT`;
+        const res = await fetch(url);
+        const data = await res.json();
+        episodeSelect.innerHTML = '';
+        data.episodes.forEach(ep => {
+          const opt = document.createElement('option');
+          opt.value = ep.episode_number;
+          opt.textContent = `Ep ${ep.episode_number}: ${ep.name}`;
+          episodeSelect.appendChild(opt);
+        });
+        // Carica primo episodio
+        player.src = `https://vixsrc.to/tv/${tvId}/${seasonNumber}/${data.episodes[0].episode_number}`;
+        player.style.display = 'block';
+        player.scrollIntoView({ behavior: 'smooth' });
+      }
+
+      updateEpisodes(seasonSelect.value);
+
+      seasonSelect.addEventListener('change', () => {
+        updateEpisodes(seasonSelect.value);
+      });
+
+      episodeSelect.addEventListener('change', () => {
+        const season = seasonSelect.value;
+        const episode = episodeSelect.value;
+        player.src = `https://vixsrc.to/tv/${tvId}/${season}/${episode}`;
+      });
     }
 
     function createCard(item) {
@@ -158,13 +242,15 @@
       `;
       card.addEventListener('click', () => {
         const player = document.getElementById('playerFrame');
+        const controls = document.getElementById('tvControls');
         if (isMovie) {
+          controls.style.display = 'none';
           player.src = `https://vixsrc.to/movie/${item.id}`;
+          player.style.display = 'block';
+          player.scrollIntoView({ behavior: 'smooth' });
         } else {
-          player.src = `https://vixsrc.to/tv/${item.id}/1/1`;
+          setupTvControls(item.id);
         }
-        player.style.display = 'block';
-        player.scrollIntoView({ behavior: 'smooth' });
       });
       return card;
     }
@@ -174,12 +260,14 @@
       const resultsDiv = document.getElementById('results');
       const loadingDiv = document.getElementById('loading');
       const player = document.getElementById('playerFrame');
+      const controls = document.getElementById('tvControls');
 
       if (!query) return;
       loadingDiv.style.display = 'block';
       resultsDiv.innerHTML = '';
       player.style.display = 'none';
       player.src = '';
+      controls.style.display = 'none';
 
       const mediaItems = await searchMedia(query);
       loadingDiv.style.display = 'none';
