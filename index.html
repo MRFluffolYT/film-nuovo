@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="it">
 <head>
@@ -5,7 +6,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>MRFluffolFilm</title>
   <style>
-    /* ... tutto il tuo CSS esistente ... */
     * {
       box-sizing: border-box;
       margin: 0; padding: 0;
@@ -137,7 +137,7 @@
       height: 540px;
       border: none;
       border-radius: 15px;
-      margin: 40px auto;
+      margin: 40px auto 20px;
       box-shadow: 0 0 30px rgba(229, 9, 20, 0.7);
       display: block;
     }
@@ -166,6 +166,24 @@
       color: #eee;
       font-weight: 500;
       cursor: pointer;
+    }
+
+    #downloadContainer {
+      display: none;
+      text-align: center;
+      margin-bottom: 40px;
+    }
+
+    #downloadContainer button {
+      background-color: #e50914;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
     }
 
     @media (max-width: 700px) {
@@ -221,6 +239,12 @@
   </div>
 
   <iframe id="playerFrame" allowfullscreen></iframe>
+
+  <div id="downloadContainer">
+    <a id="downloadLink" href="#" target="_blank" download>
+      <button>⬇️ Scarica Video</button>
+    </a>
+  </div>
 
 <script>
   const tmdbApiKey = 'a3c17d492a24a9f77acb23626404edd1';
@@ -281,9 +305,14 @@
         opt.textContent = `Ep ${ep.episode_number}: ${ep.name}`;
         episodeSelect.appendChild(opt);
       });
-      player.src = `https://vixsrc.to/tv/${tvId}/${seasonNumber}/${data.episodes[0].episode_number}`;
+
+      const firstEpisodeUrl = `https://vixsrc.to/tv/${tvId}/${seasonNumber}/${data.episodes[0].episode_number}`;
+      player.src = firstEpisodeUrl;
       player.style.display = 'block';
       player.scrollIntoView({ behavior: 'smooth' });
+
+      document.getElementById('downloadLink').href = firstEpisodeUrl;
+      document.getElementById('downloadContainer').style.display = 'block';
     }
 
     updateEpisodes(seasonSelect.value);
@@ -295,7 +324,9 @@
     episodeSelect.addEventListener('change', () => {
       const season = seasonSelect.value;
       const episode = episodeSelect.value;
-      player.src = `https://vixsrc.to/tv/${tvId}/${season}/${episode}`;
+      const epUrl = `https://vixsrc.to/tv/${tvId}/${season}/${episode}`;
+      player.src = epUrl;
+      document.getElementById('downloadLink').href = epUrl;
     });
   }
 
@@ -317,9 +348,13 @@
       const controls = document.getElementById('tvControls');
       if (isMovie) {
         controls.style.display = 'none';
-        player.src = `https://vixsrc.to/movie/${item.id}`;
+        const movieUrl = `https://vixsrc.to/movie/${item.id}`;
+        player.src = movieUrl;
         player.style.display = 'block';
         player.scrollIntoView({ behavior: 'smooth' });
+
+        document.getElementById('downloadLink').href = movieUrl;
+        document.getElementById('downloadContainer').style.display = 'block';
       } else {
         setupTvControls(item.id);
       }
@@ -340,6 +375,8 @@
     player.style.display = 'none';
     player.src = '';
     controls.style.display = 'none';
+    document.getElementById('downloadContainer').style.display = 'none';
+    document.getElementById('downloadLink').href = '#';
 
     const mediaItems = await searchMedia(query);
     loadingDiv.style.display = 'none';
