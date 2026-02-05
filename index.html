@@ -10,293 +10,165 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Bebas+Neue&display=swap" rel="stylesheet">
 
-  <!-- Umami Analytics (cloud) -->
-  <script defer src="https://cloud.umami.is/script.js" data-website-id="94b892f6-ccbe-4a8a-9488-65774e908597"></script>
+  <!-- Simple Analytics -->
+  <script async src="https://scripts.simpleanalyticscdn.com/latest.js"></script>
+
+  <!-- Umami Analytics -->
+  <script defer src="https://cloud.umami.is/script.js"
+          data-website-id="94b892f6-ccbe-4a8a-9488-65774e908597"></script>
 
   <style>
-    /* =========================
-       CSS IDENTICO AL TUO
-    ========================= */
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
       background: #0f0f0f;
       color: #e0e0e0;
       font-family: 'Inter', system-ui, sans-serif;
       min-height: 100vh;
-      background-image: 
-        radial-gradient(circle at 15% 50%, rgba(229,9,20,0.07) 0%, transparent 25%),
-        radial-gradient(circle at 85% 30%, rgba(180,6,16,0.05) 0%, transparent 35%);
-      background-attachment: fixed;
     }
     header {
       position: sticky; top: 0; z-index: 100;
-      background: rgba(15,15,15,0.92); backdrop-filter: blur(12px);
+      background: rgba(15,15,15,0.92);
       border-bottom: 1px solid rgba(229,9,20,0.18);
       padding: 1.1rem 5vw;
       display: flex; align-items: center; justify-content: space-between; gap: 2rem; flex-wrap: wrap;
     }
     header h1 {
       font-family: 'Bebas Neue', sans-serif;
-      font-size: clamp(2.1rem, 6vw, 3.6rem);
+      font-size: 3rem;
       letter-spacing: 4px;
-      background: linear-gradient(90deg, #ff2d55, #e50914, #b00610);
-      -webkit-background-clip: text; background-clip: text; color: transparent;
-      text-shadow: 0 0 30px rgba(229,9,20,0.4); user-select: none;
+      color: #e50914;
     }
-    #search-container { position: relative; width: 100%; max-width: 480px; }
     #searchInput {
-      width: 100%; padding: 14px 60px 14px 20px; font-size: 1.05rem;
-      background: rgba(30,30,30,0.7); border: 1px solid rgba(229,9,20,0.2);
-      border-radius: 50px; color: white; outline: none; transition: all 0.3s ease;
-      backdrop-filter: blur(6px);
+      width: 100%; max-width: 400px;
+      padding: 14px 20px;
+      border-radius: 40px;
+      border: none;
+      background: #222;
+      color: white;
+      font-size: 1rem;
     }
-    #searchInput::placeholder { color: #888; }
-    #searchInput:focus { border-color: #e50914; box-shadow: 0 0 0 3px rgba(229,9,20,0.25); background: rgba(40,40,40,0.85); }
     #searchBtn {
-      position: absolute; right: 8px; top: 50%; transform: translateY(-50%);
-      background: linear-gradient(145deg, #e50914, #b00610); color: white; border: none;
-      padding: 10px 18px; border-radius: 30px; font-weight: 700; cursor: pointer;
-      transition: all 0.28s ease; box-shadow: 0 4px 15px rgba(229,9,20,0.35);
+      padding: 12px 22px;
+      border-radius: 40px;
+      border: none;
+      background: #e50914;
+      color: white;
+      cursor: pointer;
+      font-weight: 700;
     }
-    #searchBtn:hover { transform: translateY(-50%) scale(1.08); box-shadow: 0 8px 25px rgba(229,9,20,0.55); }
-    #loading { text-align: center; padding: 3rem 1rem; font-size: 1.3rem; color: #999; font-style: italic; letter-spacing: 1px; display:none; }
     #results {
-      padding: 2.5rem 5vw; display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-      gap: 1.6rem 1.2rem; max-width: 1800px; margin: 0 auto;
+      padding: 2rem 5vw;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px,1fr));
+      gap: 1.4rem;
     }
     .card {
-      position: relative; border-radius: 12px; overflow: hidden; background: #1a1a1a;
-      transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1); cursor: pointer; aspect-ratio: 2/3;
-      box-shadow: 0 6px 20px rgba(0,0,0,0.6);
+      background: #1a1a1a;
+      border-radius: 12px;
+      overflow: hidden;
+      cursor: pointer;
+      transition: transform .3s;
     }
-    .card:hover { transform: translateY(-12px) scale(1.06); box-shadow: 0 25px 50px -12px rgba(229,9,20,0.45); z-index: 10; }
-    .card::after { content: ''; position: absolute; inset:0; background: linear-gradient(to top, rgba(229,9,20,0.35), transparent 60%); opacity:0; transition: opacity 0.4s ease; pointer-events:none; }
-    .card:hover::after { opacity:1; }
-    .card img { width: 100%; height:100%; object-fit: cover; transition: transform 0.6s ease; display:block; }
-    .card:hover img { transform: scale(1.08); }
+    .card:hover { transform: scale(1.05); }
+    .card img { width:100%; height:100%; object-fit:cover; }
     .card h3 {
-      position:absolute; bottom:0; left:0; right:0; padding:1.2rem 0.9rem 0.9rem;
-      font-size:0.94rem; font-weight:600; background: linear-gradient(to top, rgba(0,0,0,0.95), transparent);
-      color:white; text-align:center; text-shadow:0 1px 4px black; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+      padding: .8rem;
+      font-size: .95rem;
+      text-align: center;
     }
-    /* PLAYER */
-    #playerFrame { display:none; width:90vw; max-width:1180px; aspect-ratio:16/9; margin:3rem auto 2rem; border-radius:16px; overflow:hidden; box-shadow:0 30px 80px -15px rgba(229,9,20,0.4), 0 0 0 1px rgba(229,9,20,0.15); background:black; }
-    #tvControls { display:none; text-align:center; margin:1.5rem auto 2.5rem; padding:1rem 2rem; background: rgba(20,20,20,0.7); backdrop-filter: blur(10px); border-radius:16px; width:fit-content; border:1px solid rgba(229,9,20,0.2); }
-    #tvControls label { margin:0 1.8rem; font-weight:500; color:#ddd; }
-    #tvControls select { padding:8px 14px; margin-left:8px; background:#222; color:white; border:1px solid #444; border-radius:8px; font-size:0.95rem; cursor:pointer; }
-    #downloadContainer { display:none; text-align:center; margin:2rem auto 4rem; }
-    #downloadLink button {
-      background: linear-gradient(90deg, #e50914, #ff2d55); color:white; border:none; padding:14px 36px;
-      font-size:1.15rem; font-weight:700; border-radius:50px; cursor:pointer; box-shadow:0 8px 30px rgba(229,9,20,0.5); transition: all 0.3s ease;
-    }
-    #downloadLink button:hover { transform: translateY(-3px); box-shadow:0 15px 40px rgba(229,9,20,0.7); }
-    @media (max-width:768px) {
-      header { flex-direction: column; gap:1.4rem; padding:1.2rem 4vw; }
-      #results { grid-template-columns: repeat(auto-fill, minmax(150px,1fr)); gap:1.2rem 0.9rem; padding:1.5rem 4vw; }
-      #playerFrame { width:96vw; margin:2rem auto 1.5rem; }
-      #tvControls { flex-direction:column; gap:1rem; padding:1.2rem; }
-      #tvControls label { margin:0; }
+    #playerFrame {
+      display:none;
+      width:90vw;
+      max-width:1100px;
+      aspect-ratio:16/9;
+      margin:2rem auto;
+      border:none;
     }
   </style>
 </head>
+
 <body>
 
 <header>
   <h1>MRFluffolFilm</h1>
-  <div id="search-container">
-    <input type="text" id="searchInput" placeholder="Cerca film, serie TV..." autocomplete="off"/>
-    <button id="searchBtn">Cerca</button>
-  </div>
+  <input id="searchInput" placeholder="Cerca film o serie…" />
+  <button id="searchBtn">Cerca</button>
 </header>
 
-<div id="loading">Caricamento in corso...</div>
 <div id="results"></div>
-
-<div id="tvControls">
-  <label>Stagione: <select id="seasonSelect"></select></label>
-  <label>Episodio: <select id="episodeSelect"></select></label>
-</div>
-
 <iframe id="playerFrame" allowfullscreen></iframe>
 
-<div id="downloadContainer">
-  <a id="downloadLink" href="#" target="_blank" download>
-    <button>⬇️ Scarica Video</button>
-  </a>
-</div>
-
-<!-- =========================
-     JAVASCRIPT COMPLETO + UMAMI
-========================= -->
 <script>
+/* =========================
+   TRACK WRAPPER (UMAMI + SIMPLE)
+========================= */
+function track(event, data = {}) {
+  if (window.umami) umami.track(event, data);
+  if (window.sa_event) sa_event(event, data);
+}
+
+/* =========================
+   TMDB
+========================= */
 const tmdbApiKey = 'a3c17d492a24a9f77acb23626404edd1';
 
-/* =========================
-   SEARCH
-========================= */
 async function searchMedia(query) {
-  const url = `https://api.themoviedb.org/3/search/multi?api_key=${tmdbApiKey}&language=it-IT&query=${encodeURIComponent(query)}`;
-  try {
-    const res = await fetch(url);
-    const data = await res.json();
-    return data.results?.filter(i => i.media_type === 'movie' || i.media_type === 'tv') || [];
-  } catch { return []; }
+  const res = await fetch(
+    `https://api.themoviedb.org/3/search/multi?api_key=${tmdbApiKey}&language=it-IT&query=${encodeURIComponent(query)}`
+  );
+  const data = await res.json();
+  return data.results.filter(i => i.media_type === 'movie' || i.media_type === 'tv');
 }
 
 /* =========================
-   TV DETAILS
-========================= */
-async function getTvDetails(tvId) {
-  const url = `https://api.themoviedb.org/3/tv/${tvId}?api_key=${tmdbApiKey}&language=it-IT`;
-  const res = await fetch(url);
-  return await res.json();
-}
-
-/* =========================
-   TV CONTROLS
-========================= */
-async function setupTvControls(tvId) {
-  const controls = document.getElementById('tvControls');
-  const seasonSelect = document.getElementById('seasonSelect');
-  const episodeSelect = document.getElementById('episodeSelect');
-  const player = document.getElementById('playerFrame');
-
-  controls.style.display = 'block';
-  seasonSelect.innerHTML = '';
-  episodeSelect.innerHTML = '';
-
-  const details = await getTvDetails(tvId);
-
-  details.seasons.forEach(season => {
-    if (season.season_number > 0) {
-      const opt = document.createElement('option');
-      opt.value = season.season_number;
-      opt.textContent = `Stagione ${season.season_number}`;
-      seasonSelect.appendChild(opt);
-    }
-  });
-
-  async function updateEpisodes(seasonNumber) {
-    const url = `https://api.themoviedb.org/3/tv/${tvId}/season/${seasonNumber}?api_key=${tmdbApiKey}&language=it-IT`;
-    const res = await fetch(url);
-    const data = await res.json();
-
-    episodeSelect.innerHTML = '';
-    data.episodes.forEach(ep => {
-      const opt = document.createElement('option');
-      opt.value = ep.episode_number;
-      opt.textContent = `Ep ${ep.episode_number}: ${ep.name}`;
-      episodeSelect.appendChild(opt);
-    });
-
-    const firstEp = data.episodes[0].episode_number;
-    const epUrl = `https://vixsrc.to/tv/${tvId}/${seasonNumber}/${firstEp}`;
-
-    player.src = epUrl;
-    player.style.display = 'block';
-    player.scrollIntoView({ behavior: 'smooth' });
-
-    document.getElementById('downloadLink').href = epUrl;
-    document.getElementById('downloadContainer').style.display = 'block';
-
-    /* Umami – tracciamento episodio */
-    if (window.umami) {
-      umami.track('episode', { serie_id: tvId, stagione: seasonNumber, episodio: firstEp });
-    }
-  }
-
-  updateEpisodes(seasonSelect.value);
-
-  seasonSelect.addEventListener('change', () => { updateEpisodes(seasonSelect.value); });
-  episodeSelect.addEventListener('change', () => {
-    const season = seasonSelect.value;
-    const episode = episodeSelect.value;
-    const epUrl = `https://vixsrc.to/tv/${tvId}/${season}/${episode}`;
-    player.src = epUrl;
-    document.getElementById('downloadLink').href = epUrl;
-    if (window.umami) umami.track('episode', { serie_id: tvId, stagione: season, episodio: episode });
-  });
-}
-
-/* =========================
-   CARD CREATION
+   CARD
 ========================= */
 function createCard(item) {
-  const isMovie = item.media_type === 'movie';
-  const title = isMovie ? item.title : item.name;
-  const imgSrc = item.poster_path ? `https://image.tmdb.org/t/p/w300${item.poster_path}` : 'https://via.placeholder.com/300x450?text=No+Image';
-
   const card = document.createElement('div');
   card.className = 'card';
-  card.innerHTML = `<img src="${imgSrc}" alt="${title}" /><h3>${title}</h3>`;
 
-  card.addEventListener('click', () => {
-    const player = document.getElementById('playerFrame');
-    const controls = document.getElementById('tvControls');
+  const title = item.media_type === 'movie' ? item.title : item.name;
+  const img = item.poster_path
+    ? `https://image.tmdb.org/t/p/w300${item.poster_path}`
+    : 'https://via.placeholder.com/300x450';
 
-    /* Umami – play */
-    if (window.umami) {
-      umami.track('play', { titolo: title, tipo: isMovie ? 'film' : 'serie', tmdb_id: item.id });
-    }
+  card.innerHTML = `<img src="${img}"><h3>${title}</h3>`;
 
-    if (isMovie) {
-      controls.style.display = 'none';
-      const movieUrl = `https://vixsrc.to/movie/${item.id}`;
-      player.src = movieUrl; player.style.display = 'block'; player.scrollIntoView({ behavior: 'smooth' });
-      document.getElementById('downloadLink').href = movieUrl; document.getElementById('downloadContainer').style.display = 'block';
-      if (window.umami) umami.track('download', { tipo:'film' });
-    } else {
-      setupTvControls(item.id);
-    }
-  });
+  card.onclick = () => {
+    const iframe = document.getElementById('playerFrame');
+    const url = item.media_type === 'movie'
+      ? `https://vixsrc.to/movie/${item.id}`
+      : `https://vixsrc.to/tv/${item.id}/1/1`;
+
+    iframe.src = url;
+    iframe.style.display = 'block';
+
+    track('play', {
+      titolo: title,
+      tipo: item.media_type,
+      tmdb_id: item.id
+    });
+  };
 
   return card;
 }
 
 /* =========================
-   DO SEARCH
+   SEARCH
 ========================= */
 async function doSearch() {
-  const query = document.getElementById('searchInput').value.trim();
+  const query = searchInput.value.trim();
   if (!query) return;
 
-  /* Umami – search */
-  if (window.umami) umami.track('search', { query });
+  track('search', { query });
 
-  const resultsDiv = document.getElementById('results');
-  const loadingDiv = document.getElementById('loading');
-
-  loadingDiv.style.display = 'block';
-  resultsDiv.innerHTML = '';
-  document.getElementById('playerFrame').style.display = 'none';
-  document.getElementById('tvControls').style.display = 'none';
-  document.getElementById('downloadContainer').style.display = 'none';
-
-  const mediaItems = await searchMedia(query);
-  loadingDiv.style.display = 'none';
-
-  if (!mediaItems.length) {
-    resultsDiv.innerHTML = '<p style="text-align:center;padding:3rem;color:#888;">Nessun risultato trovato.</p>';
-    return;
-  }
-
-  mediaItems.forEach(item => resultsDiv.appendChild(createCard(item)));
+  results.innerHTML = '';
+  const items = await searchMedia(query);
+  items.forEach(i => results.appendChild(createCard(i)));
 }
 
-/* =========================
-   EVENTS
-========================= */
-document.getElementById('searchBtn').addEventListener('click', doSearch);
-document.getElementById('searchInput').addEventListener('keydown', e => { if (e.key==='Enter') doSearch(); });
-</script>
-
-<script>
-// Avviso Brave
-document.addEventListener('DOMContentLoaded', () => {
-  if (!navigator.userAgent.toLowerCase().includes('brave')) {
-    alert("⚠️ Per evitare pubblicità fastidiose nel player, ti consigliamo di aprire il sito con il browser Brave.");
-  }
-});
+searchBtn.onclick = doSearch;
+searchInput.onkeydown = e => e.key === 'Enter' && doSearch();
 </script>
 
 </body>
