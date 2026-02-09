@@ -76,7 +76,6 @@
       font-size:0.94rem; font-weight:600; background: linear-gradient(to top, rgba(0,0,0,0.95), transparent);
       color:white; text-align:center; text-shadow:0 1px 4px black; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
     }
-    /* PLAYER */
     #playerFrame { display:none; width:90vw; max-width:1180px; aspect-ratio:16/9; margin:3rem auto 2rem; border-radius:16px; overflow:hidden; box-shadow:0 30px 80px -15px rgba(229,9,20,0.4), 0 0 0 1px rgba(229,9,20,0.15); background:black; }
     #tvControls { display:none; text-align:center; margin:1.5rem auto 2.5rem; padding:1rem 2rem; background: rgba(20,20,20,0.7); backdrop-filter: blur(10px); border-radius:16px; width:fit-content; border:1px solid rgba(229,9,20,0.2); }
     #tvControls label { margin:0 1.8rem; font-weight:500; color:#ddd; }
@@ -134,7 +133,6 @@
 </head>
 <body>
 
-<!-- Popup username con il testo aggiornato -->
 <div id="username-modal">
   <div class="modal-content">
     <h2>Per una maggiore sicurezza</h2>
@@ -171,7 +169,7 @@
 <script>
 const tmdbApiKey = 'a3c17d492a24a9f77acb23626404edd1';
 
-/* ========================= SEARCH ========================= */
+/* SEARCH */
 async function searchMedia(query) {
   const url = `https://api.themoviedb.org/3/search/multi?api_key=${tmdbApiKey}&language=it-IT&query=${encodeURIComponent(query)}`;
   try {
@@ -181,14 +179,14 @@ async function searchMedia(query) {
   } catch { return []; }
 }
 
-/* ========================= TV DETAILS ========================= */
+/* TV DETAILS */
 async function getTvDetails(tvId) {
   const url = `https://api.themoviedb.org/3/tv/${tvId}?api_key=${tmdbApiKey}&language=it-IT`;
   const res = await fetch(url);
   return await res.json();
 }
 
-/* ========================= TV CONTROLS ========================= */
+/* TV CONTROLS */
 async function setupTvControls(tvId) {
   const controls = document.getElementById('tvControls');
   const seasonSelect = document.getElementById('seasonSelect');
@@ -251,7 +249,7 @@ async function setupTvControls(tvId) {
   });
 }
 
-/* ========================= CARD CREATION ========================= */
+/* CARD CREATION */
 function createCard(item) {
   const isMovie = item.media_type === 'movie';
   const title = isMovie ? item.title : item.name;
@@ -283,7 +281,7 @@ function createCard(item) {
   return card;
 }
 
-/* ========================= DO SEARCH ========================= */
+/* DO SEARCH */
 async function doSearch() {
   const query = document.getElementById('searchInput').value.trim();
   if (!query) return;
@@ -310,15 +308,15 @@ async function doSearch() {
   mediaItems.forEach(item => resultsDiv.appendChild(createCard(item)));
 }
 
-/* ========================= EVENTS ========================= */
+/* EVENTS */
 document.getElementById('searchBtn').addEventListener('click', doSearch);
 document.getElementById('searchInput').addEventListener('keydown', e => { if (e.key==='Enter') doSearch(); });
 
 // ==============================================
-// Popup: Brave → poi username con whitelist
+// Popup: Brave → username con whitelist + evento visibile su Umami
 // ==============================================
 document.addEventListener('DOMContentLoaded', () => {
-  // 1. Avviso Brave
+  // 1. Avviso Brave (se non usi Brave)
   if (!navigator.userAgent.toLowerCase().includes('brave')) {
     alert("⚠️ Per evitare pubblicità fastidiose nel player, ti consigliamo di aprire il sito con il browser Brave.");
   }
@@ -343,12 +341,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
   btn.addEventListener('click', () => {
     let username = input.value.trim();
-    const originalUsername = username;
-    username = username.toLowerCase();
+    const originalUsername = username;           // per umami (mantiene maiuscole/minuscole)
+    username = username.toLowerCase();           // per confronto whitelist
 
     if (username.length < 2) return;
 
-    // WHITELIST - modifica questa lista con i nomi permessi
+    // WHITELIST - modifica questa lista con i nomi che vuoi permettere
     const whitelist = [
       "youngestmoonsta",
       "admin",
@@ -359,7 +357,7 @@ document.addEventListener('DOMContentLoaded', () => {
       "pippo",
       "pluto",
       "paperino"
-      // aggiungi altri nomi qui se necessario
+      // aggiungi altri nomi qui
     ];
 
     if (!whitelist.includes(username)) {
@@ -369,9 +367,17 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
-    // OK → procedi
+    // Registrazione su Umami
     if (window.umami) {
+      // Unisce le sessioni dell'utente
       window.umami.identify(originalUsername);
+
+      // Evento custom → lo vedi nel tab EVENTS di Umami con il nome utente
+      window.umami.track('accesso_autorizzato', {
+        username: originalUsername,
+        data: new Date().toLocaleString('it-IT'),
+        browser: navigator.userAgent.substring(0, 80)
+      });
     }
 
     modal.classList.remove('active');
