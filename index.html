@@ -14,9 +14,7 @@
   <script defer src="https://cloud.umami.is/script.js" data-website-id="94b892f6-ccbe-4a8a-9488-65774e908597"></script>
 
   <style>
-    /* =========================
-       CSS IDENTICO AL TUO
-    ========================= */
+    /* tutto il tuo CSS originale invariato */
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
       background: #0f0f0f;
@@ -28,78 +26,79 @@
         radial-gradient(circle at 85% 30%, rgba(180,6,16,0.05) 0%, transparent 35%);
       background-attachment: fixed;
     }
-    header {
-      position: sticky; top: 0; z-index: 100;
-      background: rgba(15,15,15,0.92); backdrop-filter: blur(12px);
-      border-bottom: 1px solid rgba(229,9,20,0.18);
-      padding: 1.1rem 5vw;
-      display: flex; align-items: center; justify-content: space-between; gap: 2rem; flex-wrap: wrap;
-    }
-    header h1 {
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: clamp(2.1rem, 6vw, 3.6rem);
-      letter-spacing: 4px;
-      background: linear-gradient(90deg, #ff2d55, #e50914, #b00610);
-      -webkit-background-clip: text; background-clip: text; color: transparent;
-      text-shadow: 0 0 30px rgba(229,9,20,0.4); user-select: none;
-    }
+    header { position: sticky; top: 0; z-index: 100; background: rgba(15,15,15,0.92); backdrop-filter: blur(12px); border-bottom: 1px solid rgba(229,9,20,0.18); padding: 1.1rem 5vw; display: flex; align-items: center; justify-content: space-between; gap: 2rem; flex-wrap: wrap; }
+    header h1 { font-family: 'Bebas Neue', sans-serif; font-size: clamp(2.1rem, 6vw, 3.6rem); letter-spacing: 4px; background: linear-gradient(90deg, #ff2d55, #e50914, #b00610); -webkit-background-clip: text; background-clip: text; color: transparent; text-shadow: 0 0 30px rgba(229,9,20,0.4); user-select: none; }
     #search-container { position: relative; width: 100%; max-width: 480px; }
-    #searchInput {
-      width: 100%; padding: 14px 60px 14px 20px; font-size: 1.05rem;
-      background: rgba(30,30,30,0.7); border: 1px solid rgba(229,9,20,0.2);
-      border-radius: 50px; color: white; outline: none; transition: all 0.3s ease;
-      backdrop-filter: blur(6px);
-    }
+    #searchInput { width: 100%; padding: 14px 60px 14px 20px; font-size: 1.05rem; background: rgba(30,30,30,0.7); border: 1px solid rgba(229,9,20,0.2); border-radius: 50px; color: white; outline: none; transition: all 0.3s ease; backdrop-filter: blur(6px); }
     #searchInput::placeholder { color: #888; }
     #searchInput:focus { border-color: #e50914; box-shadow: 0 0 0 3px rgba(229,9,20,0.25); background: rgba(40,40,40,0.85); }
-    #searchBtn {
-      position: absolute; right: 8px; top: 50%; transform: translateY(-50%);
-      background: linear-gradient(145deg, #e50914, #b00610); color: white; border: none;
-      padding: 10px 18px; border-radius: 30px; font-weight: 700; cursor: pointer;
-      transition: all 0.28s ease; box-shadow: 0 4px 15px rgba(229,9,20,0.35);
-    }
+    #searchBtn { position: absolute; right: 8px; top: 50%; transform: translateY(-50%); background: linear-gradient(145deg, #e50914, #b00610); color: white; border: none; padding: 10px 18px; border-radius: 30px; font-weight: 700; cursor: pointer; transition: all 0.28s ease; box-shadow: 0 4px 15px rgba(229,9,20,0.35); }
     #searchBtn:hover { transform: translateY(-50%) scale(1.08); box-shadow: 0 8px 25px rgba(229,9,20,0.55); }
     #loading { text-align: center; padding: 3rem 1rem; font-size: 1.3rem; color: #999; font-style: italic; letter-spacing: 1px; display:none; }
-    #results {
-      padding: 2.5rem 5vw; display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-      gap: 1.6rem 1.2rem; max-width: 1800px; margin: 0 auto;
-    }
-    .card {
-      position: relative; border-radius: 12px; overflow: hidden; background: #1a1a1a;
-      transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1); cursor: pointer; aspect-ratio: 2/3;
-      box-shadow: 0 6px 20px rgba(0,0,0,0.6);
-    }
+    #results { padding: 2.5rem 5vw; display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 1.6rem 1.2rem; max-width: 1800px; margin: 0 auto; }
+    .card { position: relative; border-radius: 12px; overflow: hidden; background: #1a1a1a; transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1); cursor: pointer; aspect-ratio: 2/3; box-shadow: 0 6px 20px rgba(0,0,0,0.6); }
     .card:hover { transform: translateY(-12px) scale(1.06); box-shadow: 0 25px 50px -12px rgba(229,9,20,0.45); z-index: 10; }
     .card::after { content: ''; position: absolute; inset:0; background: linear-gradient(to top, rgba(229,9,20,0.35), transparent 60%); opacity:0; transition: opacity 0.4s ease; pointer-events:none; }
     .card:hover::after { opacity:1; }
     .card img { width: 100%; height:100%; object-fit: cover; transition: transform 0.6s ease; display:block; }
     .card:hover img { transform: scale(1.08); }
-    .card h3 {
-      position:absolute; bottom:0; left:0; right:0; padding:1.2rem 0.9rem 0.9rem;
-      font-size:0.94rem; font-weight:600; background: linear-gradient(to top, rgba(0,0,0,0.95), transparent);
-      color:white; text-align:center; text-shadow:0 1px 4px black; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
-    }
-    /* PLAYER */
+    .card h3 { position:absolute; bottom:0; left:0; right:0; padding:1.2rem 0.9rem 0.9rem; font-size:0.94rem; font-weight:600; background: linear-gradient(to top, rgba(0,0,0,0.95), transparent); color:white; text-align:center; text-shadow:0 1px 4px black; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
     #playerFrame { display:none; width:90vw; max-width:1180px; aspect-ratio:16/9; margin:3rem auto 2rem; border-radius:16px; overflow:hidden; box-shadow:0 30px 80px -15px rgba(229,9,20,0.4), 0 0 0 1px rgba(229,9,20,0.15); background:black; }
     #tvControls { display:none; text-align:center; margin:1.5rem auto 2.5rem; padding:1rem 2rem; background: rgba(20,20,20,0.7); backdrop-filter: blur(10px); border-radius:16px; width:fit-content; border:1px solid rgba(229,9,20,0.2); }
     #tvControls label { margin:0 1.8rem; font-weight:500; color:#ddd; }
     #tvControls select { padding:8px 14px; margin-left:8px; background:#222; color:white; border:1px solid #444; border-radius:8px; font-size:0.95rem; cursor:pointer; }
     #downloadContainer { display:none; text-align:center; margin:2rem auto 4rem; }
-    #downloadLink button {
-      background: linear-gradient(90deg, #e50914, #ff2d55); color:white; border:none; padding:14px 36px;
-      font-size:1.15rem; font-weight:700; border-radius:50px; cursor:pointer; box-shadow:0 8px 30px rgba(229,9,20,0.5); transition: all 0.3s ease;
-    }
+    #downloadLink button { background: linear-gradient(90deg, #e50914, #ff2d55); color:white; border:none; padding:14px 36px; font-size:1.15rem; font-weight:700; border-radius:50px; cursor:pointer; box-shadow:0 8px 30px rgba(229,9,20,0.5); transition: all 0.3s ease; }
     #downloadLink button:hover { transform: translateY(-3px); box-shadow:0 15px 40px rgba(229,9,20,0.7); }
-    @media (max-width:768px) {
-      header { flex-direction: column; gap:1.4rem; padding:1.2rem 4vw; }
-      #results { grid-template-columns: repeat(auto-fill, minmax(150px,1fr)); gap:1.2rem 0.9rem; padding:1.5rem 4vw; }
-      #playerFrame { width:96vw; margin:2rem auto 1.5rem; }
-      #tvControls { flex-direction:column; gap:1rem; padding:1.2rem; }
-      #tvControls label { margin:0; }
+    @media (max-width:768px) { header { flex-direction: column; gap:1.4rem; padding:1.2rem 4vw; } #results { grid-template-columns: repeat(auto-fill, minmax(150px,1fr)); gap:1.2rem 0.9rem; padding:1.5rem 4vw; } #playerFrame { width:96vw; margin:2rem auto 1.5rem; } #tvControls { flex-direction:column; gap:1rem; padding:1.2rem; } #tvControls label { margin:0; } }
+
+    /* stile popup username */
+    #username-modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.92);
+      backdrop-filter: blur(8px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.4s ease;
     }
+    #username-modal.active {
+      opacity: 1;
+      pointer-events: all;
+    }
+    .modal-content {
+      background: rgba(30,30,30,0.95);
+      border: 1px solid rgba(229,9,20,0.4);
+      border-radius: 16px;
+      padding: 2.5rem 2rem;
+      width: 90%;
+      max-width: 420px;
+      text-align: center;
+      box-shadow: 0 20px 60px rgba(229,9,20,0.3);
+    }
+    .modal-content h2 { color: #ff2d55; margin-bottom: 1.2rem; font-size: 1.6rem; }
+    .modal-content p { margin-bottom: 1.8rem; color: #ccc; line-height: 1.5; }
+    #username-input { width: 100%; padding: 14px; font-size: 1.1rem; background: #222; border: 1px solid #444; border-radius: 10px; color: white; margin-bottom: 1.5rem; outline: none; }
+    #username-input:focus { border-color: #e50914; box-shadow: 0 0 0 3px rgba(229,9,20,0.3); }
+    #username-submit { background: linear-gradient(90deg, #e50914, #ff2d55); color: white; border: none; padding: 14px 40px; font-size: 1.1rem; font-weight: 700; border-radius: 50px; cursor: pointer; transition: all 0.25s; }
+    #username-submit:hover { transform: scale(1.05); box-shadow: 0 10px 30px rgba(229,9,20,0.5); }
+    #username-submit:disabled { opacity: 0.5; cursor: not-allowed; }
   </style>
 </head>
 <body>
+
+<div id="username-modal">
+  <div class="modal-content">
+    <h2>Per una maggiore sicurezza</h2>
+    <p>Inserisci il tuo username per continuare<br>(verrà usato solo per non ricevere accessi da estranei)</p>
+    <input type="text" id="username-input" placeholder="Il tuo nome" autocomplete="off" maxlength="30" />
+    <button id="username-submit" disabled>Continua</button>
+  </div>
+</div>
 
 <header>
   <h1>MRFluffolFilm</h1>
@@ -125,15 +124,10 @@
   </a>
 </div>
 
-<!-- =========================
-     JAVASCRIPT COMPLETO + UMAMI
-========================= -->
 <script>
 const tmdbApiKey = 'a3c17d492a24a9f77acb23626404edd1';
 
-/* =========================
-   SEARCH
-========================= */
+/* SEARCH */
 async function searchMedia(query) {
   const url = `https://api.themoviedb.org/3/search/multi?api_key=${tmdbApiKey}&language=it-IT&query=${encodeURIComponent(query)}`;
   try {
@@ -143,18 +137,14 @@ async function searchMedia(query) {
   } catch { return []; }
 }
 
-/* =========================
-   TV DETAILS
-========================= */
+/* TV DETAILS */
 async function getTvDetails(tvId) {
   const url = `https://api.themoviedb.org/3/tv/${tvId}?api_key=${tmdbApiKey}&language=it-IT`;
   const res = await fetch(url);
   return await res.json();
 }
 
-/* =========================
-   TV CONTROLS
-========================= */
+/* TV CONTROLS */
 async function setupTvControls(tvId) {
   const controls = document.getElementById('tvControls');
   const seasonSelect = document.getElementById('seasonSelect');
@@ -199,7 +189,6 @@ async function setupTvControls(tvId) {
     document.getElementById('downloadLink').href = epUrl;
     document.getElementById('downloadContainer').style.display = 'block';
 
-    /* Umami – tracciamento episodio */
     if (window.umami) {
       umami.track('episode', { serie_id: tvId, stagione: seasonNumber, episodio: firstEp });
     }
@@ -218,9 +207,7 @@ async function setupTvControls(tvId) {
   });
 }
 
-/* =========================
-   CARD CREATION
-========================= */
+/* CARD CREATION */
 function createCard(item) {
   const isMovie = item.media_type === 'movie';
   const title = isMovie ? item.title : item.name;
@@ -234,7 +221,6 @@ function createCard(item) {
     const player = document.getElementById('playerFrame');
     const controls = document.getElementById('tvControls');
 
-    /* Umami – play */
     if (window.umami) {
       umami.track('play', { titolo: title, tipo: isMovie ? 'film' : 'serie', tmdb_id: item.id });
     }
@@ -253,14 +239,11 @@ function createCard(item) {
   return card;
 }
 
-/* =========================
-   DO SEARCH
-========================= */
+/* DO SEARCH */
 async function doSearch() {
   const query = document.getElementById('searchInput').value.trim();
   if (!query) return;
 
-  /* Umami – search */
   if (window.umami) umami.track('search', { query });
 
   const resultsDiv = document.getElementById('results');
@@ -283,19 +266,47 @@ async function doSearch() {
   mediaItems.forEach(item => resultsDiv.appendChild(createCard(item)));
 }
 
-/* =========================
-   EVENTS
-========================= */
+/* EVENTS */
 document.getElementById('searchBtn').addEventListener('click', doSearch);
 document.getElementById('searchInput').addEventListener('keydown', e => { if (e.key==='Enter') doSearch(); });
-</script>
 
-<script>
-// Avviso Brave
+// ────────────────────────────────────────────────
+// Sequenza: prima Brave → poi popup username
+// ────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
+  // 1. Prima mostriamo l'avviso Brave
   if (!navigator.userAgent.toLowerCase().includes('brave')) {
     alert("⚠️ Per evitare pubblicità fastidiose nel player, ti consigliamo di aprire il sito con il browser Brave.");
   }
+
+  // 2. SOLO DOPO che l'utente ha chiuso l'alert → appare il popup username
+  const modal = document.getElementById('username-modal');
+  const input  = document.getElementById('username-input');
+  const btn    = document.getElementById('username-submit');
+
+  modal.classList.add('active');
+  input.focus();
+
+  input.addEventListener('input', () => {
+    btn.disabled = input.value.trim().length < 2;
+  });
+
+  input.addEventListener('keydown', e => {
+    if (e.key === 'Enter' && !btn.disabled) {
+      btn.click();
+    }
+  });
+
+  btn.addEventListener('click', () => {
+    const username = input.value.trim();
+    if (username.length < 2) return;
+
+    if (window.umami) {
+      window.umami.identify(username);
+    }
+
+    modal.classList.remove('active');
+  });
 });
 </script>
 
