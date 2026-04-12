@@ -2,392 +2,208 @@
 <html lang="it">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>MRFluffolFilm</title>
+  <meta
+    name="description"
+    content="MRFluffolFilm: film e serie TV in streaming con ricerca rapida e player ottimizzato."
+  />
 
-  <!-- Fonts -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Bebas+Neue&display=swap" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Grotesk:wght@400;500;700&display=swap"
+    rel="stylesheet"
+  />
 
-  <!-- Umami Analytics (cloud) -->
-  <script defer src="https://cloud.umami.is/script.js" data-website-id="94b892f6-ccbe-4a8a-9488-65774e908597"></script>
+  <link rel="stylesheet" href="styles.css" />
 
-  <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body {
-      background: #0f0f0f;
-      color: #e0e0e0;
-      font-family: 'Inter', system-ui, sans-serif;
-      min-height: 100vh;
-      background-image: 
-        radial-gradient(circle at 15% 50%, rgba(229,9,20,0.07) 0%, transparent 25%),
-        radial-gradient(circle at 85% 30%, rgba(180,6,16,0.05) 0%, transparent 35%);
-      background-attachment: fixed;
-    }
-    header {
-      position: sticky; top: 0; z-index: 100;
-      background: rgba(15,15,15,0.92); backdrop-filter: blur(12px);
-      border-bottom: 1px solid rgba(229,9,20,0.18);
-      padding: 1.1rem 5vw;
-      display: flex; align-items: center; justify-content: space-between; gap: 2rem; flex-wrap: wrap;
-    }
-    header h1 {
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: clamp(2.1rem, 6vw, 3.6rem);
-      letter-spacing: 4px;
-      background: linear-gradient(90deg, #ff2d55, #e50914, #b00610);
-      -webkit-background-clip: text; background-clip: text; color: transparent;
-      text-shadow: 0 0 30px rgba(229,9,20,0.4); user-select: none;
-    }
-    #search-container { position: relative; width: 100%; max-width: 480px; }
-    #searchInput {
-      width: 100%; padding: 14px 60px 14px 20px; font-size: 1.05rem;
-      background: rgba(30,30,30,0.7); border: 1px solid rgba(229,9,20,0.2);
-      border-radius: 50px; color: white; outline: none; transition: all 0.3s ease;
-      backdrop-filter: blur(6px);
-    }
-    #searchInput::placeholder { color: #888; }
-    #searchInput:focus { border-color: #e50914; box-shadow: 0 0 0 3px rgba(229,9,20,0.25); background: rgba(40,40,40,0.85); }
-    #searchBtn {
-      position: absolute; right: 8px; top: 50%; transform: translateY(-50%);
-      background: linear-gradient(145deg, #e50914, #b00610); color: white; border: none;
-      padding: 10px 18px; border-radius: 30px; font-weight: 700; cursor: pointer;
-      transition: all 0.28s ease; box-shadow: 0 4px 15px rgba(229,9,20,0.35);
-    }
-    #searchBtn:hover { transform: translateY(-50%) scale(1.08); box-shadow: 0 8px 25px rgba(229,9,20,0.55); }
-    #loading { text-align: center; padding: 3rem 1rem; font-size: 1.3rem; color: #999; font-style: italic; letter-spacing: 1px; display:none; }
-    #results {
-      padding: 2.5rem 5vw; display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-      gap: 1.6rem 1.2rem; max-width: 1800px; margin: 0 auto;
-    }
-    .card {
-      position: relative; border-radius: 12px; overflow: hidden; background: #1a1a1a;
-      transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1); cursor: pointer; aspect-ratio: 2/3;
-      box-shadow: 0 6px 20px rgba(0,0,0,0.6);
-    }
-    .card:hover { transform: translateY(-12px) scale(1.06); box-shadow: 0 25px 50px -12px rgba(229,9,20,0.45); z-index: 10; }
-    .card::after { content: ''; position: absolute; inset:0; background: linear-gradient(to top, rgba(229,9,20,0.35), transparent 60%); opacity:0; transition: opacity 0.4s ease; pointer-events:none; }
-    .card:hover::after { opacity:1; }
-    .card img { width: 100%; height:100%; object-fit: cover; transition: transform 0.6s ease; display:block; }
-    .card:hover img { transform: scale(1.08); }
-    .card h3 {
-      position:absolute; bottom:0; left:0; right:0; padding:1.2rem 0.9rem 0.9rem;
-      font-size:0.94rem; font-weight:600; background: linear-gradient(to top, rgba(0,0,0,0.95), transparent);
-      color:white; text-align:center; text-shadow:0 1px 4px black; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
-    }
-    #playerFrame { display:none; width:90vw; max-width:1180px; aspect-ratio:16/9; margin:3rem auto 2rem; border-radius:16px; overflow:hidden; box-shadow:0 30px 80px -15px rgba(229,9,20,0.4), 0 0 0 1px rgba(229,9,20,0.15); background:black; }
-    #tvControls { display:none; text-align:center; margin:1.5rem auto 2.5rem; padding:1rem 2rem; background: rgba(20,20,20,0.7); backdrop-filter: blur(10px); border-radius:16px; width:fit-content; border:1px solid rgba(229,9,20,0.2); }
-    #tvControls label { margin:0 1.8rem; font-weight:500; color:#ddd; }
-    #tvControls select { padding:8px 14px; margin-left:8px; background:#222; color:white; border:1px solid #444; border-radius:8px; font-size:0.95rem; cursor:pointer; }
-    #downloadContainer { display:none; text-align:center; margin:2rem auto 4rem; }
-    #downloadLink button {
-      background: linear-gradient(90deg, #e50914, #ff2d55); color:white; border:none; padding:14px 36px;
-      font-size:1.15rem; font-weight:700; border-radius:50px; cursor:pointer; box-shadow:0 8px 30px rgba(229,9,20,0.5); transition: all 0.3s ease;
-    }
-    #downloadLink button:hover { transform: translateY(-3px); box-shadow:0 15px 40px rgba(229,9,20,0.7); }
-    @media (max-width:768px) {
-      header { flex-direction: column; gap:1.4rem; padding:1.2rem 4vw; }
-      #results { grid-template-columns: repeat(auto-fill, minmax(150px,1fr)); gap:1.2rem 0.9rem; padding:1.5rem 4vw; }
-      #playerFrame { width:96vw; margin:2rem auto 1.5rem; }
-      #tvControls { flex-direction:column; gap:1rem; padding:1.2rem; }
-      #tvControls label { margin:0; }
-    }
-
-    /* Stile popup username */
-    #username-modal {
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.92);
-      backdrop-filter: blur(8px);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 9999;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.4s ease;
-    }
-    #username-modal.active {
-      opacity: 1;
-      pointer-events: all;
-    }
-    .modal-content {
-      background: rgba(30,30,30,0.95);
-      border: 1px solid rgba(229,9,20,0.4);
-      border-radius: 16px;
-      padding: 2.5rem 2rem;
-      width: 90%;
-      max-width: 420px;
-      text-align: center;
-      box-shadow: 0 20px 60px rgba(229,9,20,0.3);
-    }
-    .modal-content h2 { color: #ff2d55; margin-bottom: 1.2rem; font-size: 1.6rem; }
-    .modal-content p { margin-bottom: 1.8rem; color: #ccc; line-height: 1.5; }
-    #username-input { width: 100%; padding: 14px; font-size: 1.1rem; background: #222; border: 1px solid #444; border-radius: 10px; color: white; margin-bottom: 1.5rem; outline: none; }
-    #username-input:focus { border-color: #e50914; box-shadow: 0 0 0 3px rgba(229,9,20,0.3); }
-    #username-submit { background: linear-gradient(90deg, #e50914, #ff2d55); color: white; border: none; padding: 14px 40px; font-size: 1.1rem; font-weight: 700; border-radius: 50px; cursor: pointer; transition: all 0.25s; }
-    #username-submit:hover { transform: scale(1.05); box-shadow: 0 10px 30px rgba(229,9,20,0.5); }
-    #username-submit:disabled { opacity: 0.5; cursor: not-allowed; }
-  </style>
+  <script
+    defer
+    src="https://cloud.umami.is/script.js"
+    data-website-id="94b892f6-ccbe-4a8a-9488-65774e908597"
+  ></script>
+  <script defer src="script.js"></script>
 </head>
 <body>
+  <div id="username-modal" class="modal-shell">
+    <div class="modal-card">
+      <h2>Accesso</h2>
+      <p>Inserisci il tuo username per continuare.</p>
 
-<div id="username-modal">
-  <div class="modal-content">
-    <h2>Per una maggiore sicurezza</h2>
-    <p>Inserisci il tuo username per continuare<br>(verrà usato solo per non ricevere accessi da estranei)</p>
-    <input type="text" id="username-input" placeholder="Il tuo nome" autocomplete="off" maxlength="30" />
-    <button id="username-submit" disabled>Continua</button>
+      <label class="modal-input-wrap" for="username-input">
+        <span>Username</span>
+        <input
+          type="text"
+          id="username-input"
+          placeholder="Il tuo nome"
+          autocomplete="off"
+          maxlength="30"
+        />
+      </label>
+
+      <div id="browser-tip" class="browser-tip" hidden>
+        Se il player ti apre popup o pubblicita, prova con Brave.
+      </div>
+
+      <button id="username-submit" class="primary-button" disabled>
+        Entra
+      </button>
+    </div>
   </div>
-</div>
 
-<header>
-  <h1>MRFluffolFilm</h1>
-  <div id="search-container">
-    <input type="text" id="searchInput" placeholder="Cerca film, serie TV..." autocomplete="off"/>
-    <button id="searchBtn">Cerca</button>
+  <div id="details-panel" class="details-shell" hidden>
+    <div class="details-backdrop"></div>
+    <div class="details-panel">
+      <button id="detailsCloseBtn" class="details-close" type="button" aria-label="Chiudi">
+        &times;
+      </button>
+
+      <div class="details-media">
+        <div id="detailsVisual" class="details-visual"></div>
+        <div class="details-poster-wrap">
+          <img id="detailsPoster" class="details-poster" alt="" />
+        </div>
+      </div>
+
+      <div class="details-copy">
+        <span id="detailsType" class="pill">Film</span>
+        <h2 id="detailsTitle">Titolo</h2>
+        <div id="detailsMeta" class="hero-meta"></div>
+        <p id="detailsDescription" class="details-description"></p>
+        <p id="detailsCast" class="details-cast"></p>
+
+        <div class="details-actions">
+          <button id="detailsWatchBtn" class="primary-button" type="button">
+            Guarda ora
+          </button>
+          <button id="detailsCancelBtn" class="ghost-button" type="button">
+            Chiudi
+          </button>
+        </div>
+      </div>
+    </div>
   </div>
-</header>
 
-<div id="loading">Caricamento in corso...</div>
-<div id="results"></div>
+  <header class="topbar">
+    <a id="homeLink" href="#featured" class="brand" aria-label="Home MRFluffolFilm">
+      <span class="brand-mark">MF</span>
+      <span class="brand-copy">MRFluffolFilm</span>
+    </a>
 
-<div id="tvControls">
-  <label>Stagione: <select id="seasonSelect"></select></label>
-  <label>Episodio: <select id="episodeSelect"></select></label>
-</div>
+    <div class="search-bar">
+      <input
+        type="text"
+        id="searchInput"
+        placeholder="Cerca film o serie TV"
+        autocomplete="off"
+      />
+      <button id="searchBtn" class="primary-button" type="button">Cerca</button>
+    </div>
+  </header>
 
-<iframe id="playerFrame" allowfullscreen></iframe>
+  <main class="page-shell">
+    <section id="featured" class="featured">
+      <div id="heroBackdrop" class="featured-backdrop"></div>
+      <div class="featured-overlay"></div>
 
-<div id="downloadContainer">
-  <a id="downloadLink" href="#" target="_blank" download>
-    <button>⬇️ Scarica Video</button>
-  </a>
-</div>
+      <div class="featured-content">
+        <span id="heroType" class="pill">Film</span>
+        <h1 id="heroTitle">MRFluffolFilm</h1>
+        <div id="heroMeta" class="hero-meta"></div>
+        <p id="heroDescription" class="featured-description"></p>
 
-<script>
-const tmdbApiKey = 'a3c17d492a24a9f77acb23626404edd1';
+        <div class="featured-actions">
+          <button id="heroPlayBtn" class="primary-button" type="button">
+            Guarda
+          </button>
+          <button id="surpriseBtn" class="ghost-button" type="button">
+            Casuale
+          </button>
+        </div>
+      </div>
+    </section>
 
-/* SEARCH */
-async function searchMedia(query) {
-  const url = `https://api.themoviedb.org/3/search/multi?api_key=${tmdbApiKey}&language=it-IT&query=${encodeURIComponent(query)}`;
-  try {
-    const res = await fetch(url);
-    const data = await res.json();
-    return data.results?.filter(i => i.media_type === 'movie' || i.media_type === 'tv') || [];
-  } catch { return []; }
-}
+    <div id="home-sections" class="home-sections">
+      <section class="content-section">
+        <div class="section-head">
+          <h2>In tendenza</h2>
+        </div>
+        <div id="trendingRail" class="media-rail"></div>
+      </section>
 
-/* TV DETAILS */
-async function getTvDetails(tvId) {
-  const url = `https://api.themoviedb.org/3/tv/${tvId}?api_key=${tmdbApiKey}&language=it-IT`;
-  const res = await fetch(url);
-  return await res.json();
-}
+      <section id="popular-section" class="content-section">
+        <div class="section-head">
+          <h2>Film</h2>
+        </div>
+        <div id="popularRail" class="media-rail"></div>
+      </section>
 
-/* TV CONTROLS */
-async function setupTvControls(tvId) {
-  const controls = document.getElementById('tvControls');
-  const seasonSelect = document.getElementById('seasonSelect');
-  const episodeSelect = document.getElementById('episodeSelect');
-  const player = document.getElementById('playerFrame');
+      <section class="content-section">
+        <div class="section-head">
+          <h2>Serie</h2>
+        </div>
+        <div id="seriesRail" class="media-rail"></div>
+      </section>
 
-  controls.style.display = 'block';
-  seasonSelect.innerHTML = '';
-  episodeSelect.innerHTML = '';
+      <section class="content-section">
+        <div class="section-head">
+          <h2>Top rated</h2>
+        </div>
+        <div id="topRatedRail" class="media-rail"></div>
+      </section>
+    </div>
 
-  const details = await getTvDetails(tvId);
+    <section id="results-section" class="content-section" hidden>
+      <div class="section-head">
+        <h2>Risultati</h2>
+        <span id="resultsSummary" class="section-meta"></span>
+      </div>
 
-  details.seasons.forEach(season => {
-    if (season.season_number > 0) {
-      const opt = document.createElement('option');
-      opt.value = season.season_number;
-      opt.textContent = `Stagione ${season.season_number}`;
-      seasonSelect.appendChild(opt);
-    }
-  });
+      <div id="results" class="results-grid"></div>
+    </section>
 
-  async function updateEpisodes(seasonNumber) {
-    const url = `https://api.themoviedb.org/3/tv/${tvId}/season/${seasonNumber}?api_key=${tmdbApiKey}&language=it-IT`;
-    const res = await fetch(url);
-    const data = await res.json();
+    <section id="watch-area" class="content-section watch-section" hidden>
+      <div class="section-head section-head-player">
+        <div>
+          <h2 id="playerTitle">Player</h2>
+          <p id="playerSubtitle" class="section-meta"></p>
+        </div>
 
-    episodeSelect.innerHTML = '';
-    data.episodes.forEach(ep => {
-      const opt = document.createElement('option');
-      opt.value = ep.episode_number;
-      opt.textContent = `Ep ${ep.episode_number}: ${ep.name}`;
-      episodeSelect.appendChild(opt);
-    });
+        <div id="downloadContainer" class="download-container">
+          <a
+            id="downloadLink"
+            class="ghost-button"
+            href="#"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Apri fuori
+          </a>
+        </div>
+      </div>
 
-    const firstEp = data.episodes[0].episode_number;
-    const epUrl = `https://vixsrc.to/tv/${tvId}/${seasonNumber}/${firstEp}`;
+      <div id="tvControls" class="tv-controls">
+        <label for="seasonSelect">
+          Stagione
+          <select id="seasonSelect"></select>
+        </label>
 
-    player.src = epUrl;
-    player.style.display = 'block';
-    player.scrollIntoView({ behavior: 'smooth' });
+        <label for="episodeSelect">
+          Episodio
+          <select id="episodeSelect"></select>
+        </label>
+      </div>
 
-    document.getElementById('downloadLink').href = epUrl;
-    document.getElementById('downloadContainer').style.display = 'block';
-
-    if (window.umami) {
-      umami.track('episode', { serie_id: tvId, stagione: seasonNumber, episodio: firstEp });
-    }
-  }
-
-  updateEpisodes(seasonSelect.value);
-
-  seasonSelect.addEventListener('change', () => { updateEpisodes(seasonSelect.value); });
-  episodeSelect.addEventListener('change', () => {
-    const season = seasonSelect.value;
-    const episode = episodeSelect.value;
-    const epUrl = `https://vixsrc.to/tv/${tvId}/${season}/${episode}`;
-    player.src = epUrl;
-    document.getElementById('downloadLink').href = epUrl;
-    if (window.umami) umami.track('episode', { serie_id: tvId, stagione: season, episodio: episode });
-  });
-}
-
-/* CARD CREATION */
-function createCard(item) {
-  const isMovie = item.media_type === 'movie';
-  const title = isMovie ? item.title : item.name;
-  const imgSrc = item.poster_path ? `https://image.tmdb.org/t/p/w300${item.poster_path}` : 'https://via.placeholder.com/300x450?text=No+Image';
-
-  const card = document.createElement('div');
-  card.className = 'card';
-  card.innerHTML = `<img src="${imgSrc}" alt="${title}" /><h3>${title}</h3>`;
-
-  card.addEventListener('click', () => {
-    const player = document.getElementById('playerFrame');
-    const controls = document.getElementById('tvControls');
-
-    if (window.umami) {
-      umami.track('play', { titolo: title, tipo: isMovie ? 'film' : 'serie', tmdb_id: item.id });
-    }
-
-    if (isMovie) {
-      controls.style.display = 'none';
-      const movieUrl = `https://vixsrc.to/movie/${item.id}`;
-      player.src = movieUrl; player.style.display = 'block'; player.scrollIntoView({ behavior: 'smooth' });
-      document.getElementById('downloadLink').href = movieUrl; document.getElementById('downloadContainer').style.display = 'block';
-      if (window.umami) umami.track('download', { tipo:'film' });
-    } else {
-      setupTvControls(item.id);
-    }
-  });
-
-  return card;
-}
-
-/* DO SEARCH */
-async function doSearch() {
-  const query = document.getElementById('searchInput').value.trim();
-  if (!query) return;
-
-  if (window.umami) umami.track('search', { query });
-
-  const resultsDiv = document.getElementById('results');
-  const loadingDiv = document.getElementById('loading');
-
-  loadingDiv.style.display = 'block';
-  resultsDiv.innerHTML = '';
-  document.getElementById('playerFrame').style.display = 'none';
-  document.getElementById('tvControls').style.display = 'none';
-  document.getElementById('downloadContainer').style.display = 'none';
-
-  const mediaItems = await searchMedia(query);
-  loadingDiv.style.display = 'none';
-
-  if (!mediaItems.length) {
-    resultsDiv.innerHTML = '<p style="text-align:center;padding:3rem;color:#888;">Nessun risultato trovato.</p>';
-    return;
-  }
-
-  mediaItems.forEach(item => resultsDiv.appendChild(createCard(item)));
-}
-
-/* EVENTS */
-document.getElementById('searchBtn').addEventListener('click', doSearch);
-document.getElementById('searchInput').addEventListener('keydown', e => { if (e.key==='Enter') doSearch(); });
-
-// ==============================================
-// Popup: Brave → username con whitelist + evento visibile su Umami
-// ==============================================
-document.addEventListener('DOMContentLoaded', () => {
-  // 1. Avviso Brave (se non usi Brave)
-  if (!navigator.userAgent.toLowerCase().includes('brave')) {
-    alert("⚠️ Per evitare pubblicità fastidiose nel player, ti consigliamo di aprire il sito con il browser Brave.");
-  }
-
-  // 2. Popup username
-  const modal = document.getElementById('username-modal');
-  const input  = document.getElementById('username-input');
-  const btn    = document.getElementById('username-submit');
-
-  modal.classList.add('active');
-  input.focus();
-
-  input.addEventListener('input', () => {
-    btn.disabled = input.value.trim().length < 2;
-  });
-
-  input.addEventListener('keydown', e => {
-    if (e.key === 'Enter' && !btn.disabled) {
-      btn.click();
-    }
-  });
-
-  btn.addEventListener('click', () => {
-    let username = input.value.trim();
-    const originalUsername = username;           // per umami (mantiene maiuscole/minuscole)
-    username = username.toLowerCase();           // per confronto whitelist
-
-    if (username.length < 2) return;
-
-    // WHITELIST - modifica questa lista con i nomi che vuoi permettere
-    const whitelist = [
-      "youngestmoonsta",
-      "admin",
-      "annapanna07",
-      "giuseppe",
-      "fabio",
-      "barbie",
-      "cirillo",
-      "crama",
-      "carlobarba1",
-      "benedetta",
-      "sonia",
-      "",
-      ""
-      // aggiungi altri nomi qui
-    ];
-
-    if (!whitelist.includes(username)) {
-      alert("Questo username non è autorizzato.\nSolo utenti selezionati possono accedere.");
-      input.value = "";
-      input.focus();
-      return;
-    }
-
-    // Registrazione su Umami
-    if (window.umami) {
-      // Unisce le sessioni dell'utente
-      window.umami.identify(originalUsername);
-
-      // Evento custom → lo vedi nel tab EVENTS di Umami con il nome utente
-      window.umami.track('accesso_autorizzato', {
-        username: originalUsername,
-        data: new Date().toLocaleString('it-IT'),
-        browser: navigator.userAgent.substring(0, 80)
-      });
-    }
-
-    modal.classList.remove('active');
-  });
-});
-</script>
-
+      <div class="player-frame-wrap">
+        <iframe
+          id="playerFrame"
+          title="Player video"
+          loading="lazy"
+          allowfullscreen
+        ></iframe>
+      </div>
+    </section>
+  </main>
 </body>
 </html>
