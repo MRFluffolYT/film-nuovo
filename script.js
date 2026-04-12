@@ -1,4 +1,3 @@
-
 const tmdbApiKey = "a3c17d492a24a9f77acb23626404edd1";
 const tmdbBaseUrl = "https://api.themoviedb.org/3";
 const imageBase = {
@@ -136,12 +135,14 @@ function bindEvents() {
   elements.detailsCancelBtn.addEventListener("click", () => closeDetailsPanel());
   elements.detailsBackdrop.addEventListener("click", () => closeDetailsPanel());
   elements.detailsWatchBtn.addEventListener("click", () => {
-    if (!state.activeDetailItem) {
+    const selectedItem = state.activeDetailItem;
+
+    if (!selectedItem) {
       return;
     }
 
     closeDetailsPanel();
-    openPlayerForItem(state.activeDetailItem);
+    openPlayerForItem(selectedItem);
   });
 
   document.addEventListener("keydown", (event) => {
@@ -589,6 +590,10 @@ function buildFeaturedMeta(item) {
 }
 
 async function openPlayerForItem(item) {
+  if (!item) {
+    return;
+  }
+
   updatePlayerHeader(item.title, buildPlayerSubtitle(item));
 
   if (window.umami) {
