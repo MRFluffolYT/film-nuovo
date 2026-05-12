@@ -17,7 +17,9 @@ const whitelist = [
   "carlobarba1",
   "benedetta",
   "sonia",
-  "MICHELE",
+  "Devilman",
+  "",
+  "",
   
 ];
 
