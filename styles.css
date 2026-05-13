@@ -151,6 +151,52 @@ a {
   margin-bottom: 1rem;
 }
 
+.ad-footer {
+  display: grid;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.ad-slot {
+  display: grid;
+  justify-items: center;
+  gap: 0.45rem;
+  margin: 0 0 1rem;
+  padding: 0.85rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: rgba(255, 255, 255, 0.035);
+}
+
+.ad-slot__label {
+  color: rgba(245, 247, 251, 0.56);
+  font-size: 0.75rem;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.ad-slot__frame {
+  width: min(468px, 100%);
+  min-height: 60px;
+  overflow: hidden;
+}
+
+.ad-slot--wide {
+  grid-column: 1 / -1;
+}
+
+.ad-slot__frame--fluid {
+  width: 100%;
+  min-height: 90px;
+}
+
+.ad-slot__frame iframe {
+  display: block;
+  max-width: 100%;
+  margin: 0 auto;
+  border: 0;
+}
+
 .featured-backdrop,
 .featured-overlay {
   position: absolute;
