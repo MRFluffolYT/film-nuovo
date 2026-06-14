@@ -20,7 +20,6 @@ const whitelist = [
   "devilman",
   "agnesedv",
   "",
-  
 ];
 
 const genreLookup = {
@@ -138,13 +137,12 @@ function bindEvents() {
   elements.detailsCloseBtn.addEventListener("click", () => closeDetailsPanel());
   elements.detailsCancelBtn.addEventListener("click", () => closeDetailsPanel());
   elements.detailsBackdrop.addEventListener("click", () => closeDetailsPanel());
+  
   elements.detailsWatchBtn.addEventListener("click", () => {
     const selectedItem = state.activeDetailItem;
-
     if (!selectedItem) {
       return;
     }
-
     closeDetailsPanel();
     openPlayerForItem(selectedItem);
   });
@@ -228,13 +226,9 @@ async function setupAccessModal() {
       return;
     }
 
-    if (window.umami) {
-      window.umami.identify(originalUsername);
-      window.umami.track("accesso_autorizzato", {
-        username: originalUsername,
-        data: new Date().toLocaleString("it-IT"),
-        browser: navigator.userAgent.substring(0, 80),
-      });
+    // TRACCIAMENTO UMAMI: Login
+    if (window.tracker) {
+      window.tracker.trackLogin(normalizedUsername);
     }
 
     elements.modal.classList.remove("active");
@@ -304,6 +298,11 @@ async function doSearch() {
     const results = await searchMedia(query);
     state.searchResults = results;
 
+    // TRACCIAMENTO UMAMI: Ricerca
+    if (window.tracker) {
+      window.tracker.trackSearch(query, results.length);
+    }
+
     if (!results.length) {
       elements.results.appendChild(createEmptyState("Nessun risultato."));
       return;
@@ -313,9 +312,6 @@ async function doSearch() {
     setFeatured(results[0]);
     elements.resultsSummary.textContent = `${results.length} titoli`;
 
-    if (window.umami) {
-      window.umami.track("search", { query });
-    }
   } catch (error) {
     console.error("Errore durante la ricerca:", error);
     elements.results.appendChild(createEmptyState("Ricerca non disponibile."));
@@ -357,9 +353,15 @@ async function filterAvailableResults(items) {
 
 async function probePlayableAvailability(item) {
   try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 5000);
+    
     const response = await fetch(buildProbeUrl(item), {
       method: "HEAD",
+      signal: controller.signal
     });
+    
+    clearTimeout(timeoutId);
 
     if (response.ok) {
       return true;
@@ -399,12 +401,25 @@ async function fetchJson(path, params = {}) {
     }
   });
 
-  const response = await fetch(`${tmdbBaseUrl}${path}?${searchParams.toString()}`);
-  if (!response.ok) {
-    throw new Error(`TMDB request failed: ${response.status}`);
-  }
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 8000);
 
-  return response.json();
+  try {
+    const response = await fetch(`${tmdbBaseUrl}${path}?${searchParams.toString()}`, {
+      signal: controller.signal
+    });
+    
+    clearTimeout(timeoutId);
+    
+    if (!response.ok) {
+      throw new Error(`TMDB request failed: ${response.status}`);
+    }
+
+    return await response.json();
+  } catch (error) {
+    clearTimeout(timeoutId);
+    throw error;
+  }
 }
 
 async function fetchMediaDetails(item) {
@@ -600,15 +615,11 @@ async function openPlayerForItem(item) {
 
   updatePlayerHeader(item.title, buildPlayerSubtitle(item));
 
-  if (window.umami) {
-    window.umami.track("play", {
-      titolo: item.title,
-      tipo: item.mediaType === "movie" ? "film" : "serie",
-      tmdb_id: item.id,
-    });
-  }
-
   if (item.mediaType === "movie") {
+    // TRACCIAMENTO UMAMI: Avvio Film
+    if (window.tracker) {
+      window.tracker.trackPlay(item);
+    }
     elements.tvControls.classList.remove("active");
     activatePlayer(buildMovieUrl(item.id), item.title, buildPlayerSubtitle(item));
     return;
@@ -618,6 +629,11 @@ async function openPlayerForItem(item) {
 }
 
 async function openDetailsPanel(item) {
+  // TRACCIAMENTO UMAMI: Visualizzazione Dettagli
+  if (window.tracker) {
+    window.tracker.trackViewDetails(item);
+  }
+
   state.activeDetailItem = item;
   state.detailRequestId += 1;
   const requestId = state.detailRequestId;
@@ -639,7 +655,6 @@ async function openDetailsPanel(item) {
     if (requestId !== state.detailRequestId) {
       return;
     }
-
     console.error("Errore durante il caricamento dei dettagli:", error);
   }
 }
@@ -693,7 +708,6 @@ function buildCastLine(cast) {
   if (!Array.isArray(cast) || !cast.length) {
     return "Cast non disponibile.";
   }
-
   return `Cast: ${cast.join(", ")}`;
 }
 
@@ -730,12 +744,9 @@ async function setupTvControls(item) {
 
       activatePlayer(buildTvUrl(item.id, seasonNumber, episodeNumber), item.title, subtitle);
 
-      if (window.umami) {
-        window.umami.track("episode", {
-          serie_id: item.id,
-          stagione: seasonNumber,
-          episodio: episodeNumber,
-        });
+      // TRACCIAMENTO UMAMI: Avvio Episodio (Serie TV)
+      if (window.tracker) {
+        window.tracker.trackEpisode(item, seasonNumber, episodeNumber);
       }
     };
 
@@ -881,7 +892,6 @@ function dedupeById(items) {
     if (seen.has(key)) {
       return false;
     }
-
     seen.add(key);
     return true;
   });
@@ -891,11 +901,9 @@ function truncate(value, maxLength) {
   if (!value) {
     return "";
   }
-
   if (value.length <= maxLength) {
     return value;
   }
-
   return `${value.slice(0, maxLength - 1).trim()}...`;
 }
 
@@ -916,6 +924,5 @@ async function isBraveBrowser() {
       console.warn("Controllo Brave non disponibile:", error);
     }
   }
-
   return navigator.userAgent.toLowerCase().includes("brave");
 }
